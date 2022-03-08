@@ -1,0 +1,28 @@
+@startuml
+!include theme.puml
+!include base/person.puml
+!include base/coordinator.puml
+!include base/red-team.puml
+!include base/blue-team.puml
+!include base/software-system-other.puml
+
+title "System context diagram for Battleship Game"
+
+User -.-> Coordinator : visualize battle state (based on shot events),\nstart/stop the game
+
+Coordinator -.-> BlueTeam : ask to join the game,\nget information about ship location
+Coordinator -.-> RedTeam : ask to join the game,\nget information about ship location
+Coordinator <-.- EventBus : get the game status (shot events)
+
+BlueTeam <-.-> RedTeam : fight each other\nfollowing Battleship rules
+
+BlueTeam -.-> EventBus : notify about shots\nand condition of ships (hit,destroyed etc)
+RedTeam -.-> EventBus : notify about shots\nand condition of ships (hit,destroyed etc)
+
+Coordinator -.-> ServiceDiscovery : get teams location\nto coordinate battle
+BlueTeam -.-> ServiceDiscovery : get opponents\n(to call battleship REST API)
+RedTeam -.-> ServiceDiscovery : get opponents\n(to call battleship REST API)
+
+
+show_legend()
+@enduml

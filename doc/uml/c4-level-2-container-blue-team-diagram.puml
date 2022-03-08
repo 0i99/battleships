@@ -1,0 +1,21 @@
+@startuml
+!include theme.puml
+!include base/red-team.puml
+!include base/coordinator.puml
+!include base/software-system-other.puml
+
+title "Container BlueTeam diagram"
+
+package "<b>Blue team</b>\n[Software system]"  <<Software system>> {
+    component "<b>JavaSpringShip</b>\n<u>[Container: Spring Boot]</u>\n\n" <<Container>> as JavaSpring
+}
+
+Coordinator -.-> JavaSpring : ask to join/stop the game
+
+JavaSpring -.-> EventBus : notify about shots\nand condition of ships (hit,destroyed etc)
+JavaSpring -.-> ServiceDiscovery : get Red Team apps location
+
+JavaSpring -.-> RedTeam : shot to ships in Red Team
+
+show_legend()
+@enduml

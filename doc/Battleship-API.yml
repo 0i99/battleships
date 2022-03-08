@@ -1,0 +1,154 @@
+openapi: 3.0.1
+info:
+  description: "API for battleship game. See rules and more on [wikipedia](https://en.wikipedia.org/wiki/Battleship_(game))"
+  version: "0.0.1"
+  title: "Battleship API"
+  contact:
+    email: "0i99@pm.me"
+  license:
+    name: "MIT license"
+    url: "https://github.com/0i99/battleships/blob/main/LICENSE"
+paths:
+  /game:
+    post:
+      tags:
+      - "game"
+      summary: "join to the game"
+      description: "join to game and schedule to start at `startAt`"
+      operationId: "joinGame"
+      requestBody:
+        description: Game configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      responses:
+        "200":
+          description: "Ok"
+        "409":
+          description: "Conflict"   
+  /game/{id}/shot:
+    post:
+      tags:
+      - "game"
+      summary: "shot"
+      description: "Shot"
+      operationId: "shot"
+      requestBody:
+        description: Position
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Position'
+        required: true
+      responses:
+        "200":
+          description: "Ok. Hit."
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/ShotResult'
+                    
+        "404":
+          description: "Not found. Missed."         
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/ShotResult'      
+    get:
+      tags:
+        - "game"    
+      summary: "get all shots"
+      operationId: getAllShots
+      responses:
+        "200":
+          description: "get all shots"
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Position'
+  /game/{id}/ship:
+    get:
+      tags:
+      - "game"
+      summary: "find ships by criteria"
+      description: "Multiple status values can be provided with comma separated strings"
+      operationId: "find"
+      parameters:
+        - in: query
+          name: destroyed
+          description: destroyed or not
+          required: true
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Ship'
+        "404":
+          description: "Not found"
+  
+components:
+  schemas:
+    Game:
+      type: "object"
+      required:
+      - "id"
+      - "size"
+      properties:
+        id:
+          type: "string"
+          example: "c59d7c88-97f3-11ec-b909-0242ac120002"
+        size:
+          type: integer
+          default: 10
+          description: "grid size, default 10x10"
+        startAt:
+          type: "string"
+          format: "date-time"
+          example: "2022-01-01T00:00:00Z"
+          description: "start immediately if null"
+    Position:
+      type: "object"
+      properties: 
+        x:
+          type: integer
+        y:
+          type: integer        
+    Ship:
+      type: "object"
+      properties:
+        destroyed:
+          type: boolean
+          default: false
+        locaction:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Position"
+        size: 
+          type: integer
+          example: 5
+        type:
+          type: "string"
+          enum:
+          - "Carrier"
+          - "Battleship"
+          - "Cruiser"
+          - "Submarine"
+          - "Destroyer"
+    ShotResult:
+      type: "string"
+      enum:
+        - missed
+        - hit
+        - destroyed
+

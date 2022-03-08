@@ -1,0 +1,2 @@
+component "<b>Event stream</b>\n[Software system]" <<Software system,other>> as EventBus
+component "<b>Service discovery</b>\n[Software system]" <<Software system,other>> as ServiceDiscovery

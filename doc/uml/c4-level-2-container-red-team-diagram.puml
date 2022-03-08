@@ -1,0 +1,21 @@
+@startuml
+!include theme.puml
+!include base/blue-team.puml
+!include base/coordinator.puml
+!include base/software-system-other.puml
+
+title "Container RedTeam diagram"
+
+package "<b>Red team</b>\n[Software system]"  <<Software system>> {
+    component "<b>KotlinKodeinShip</b>\n<u>[Container: Kodein]</u>\n\n" <<Container>> as KotlinKodein
+}
+
+Coordinator -.-> KotlinKodein : ask to join/stop the game
+
+KotlinKodein -.-> EventBus : notify about shots\nand condition of ships (hit,destroyed etc)
+KotlinKodein -.-> ServiceDiscovery : get Blue Team apps location
+
+KotlinKodein -.-> BlueTeam : shot to ships in Blue Team
+
+show_legend()
+@enduml

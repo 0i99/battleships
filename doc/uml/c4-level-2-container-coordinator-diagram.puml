@@ -1,0 +1,26 @@
+@startuml
+!include theme.puml
+!include base/person.puml
+!include base/red-team.puml
+!include base/blue-team.puml
+!include base/software-system-other.puml
+
+title "Container coordinator diagram"
+
+package "<b>Game Coordinators</b>\n[Software system]"  <<Software system>> {
+    component "<b>Coordinator</b>\n<u>[Container: Spring]</u>\n\nUsed for visualize game,\ngame control panel," <<Container>> as Manager
+    database "<b>Database</b>\n<u>[Container: PostgreSQL]</u>\n\nUsed for store games\nhistory" <<Container>> as Database
+}
+
+User -.-> Manager : control the game,\nget game historical results
+
+Manager -.-> Database : store game results\n[jdbc]
+Manager -.-> EventBus : get shot events\nto visualize game
+Manager -.-> ServiceDiscovery : get teams locations
+
+Manager -left.-> BlueTeam : join team to the game\n(with specific id)
+Manager -right.-> RedTeam : join team to the game\n(with specific id)
+
+
+show_legend()
+@enduml
