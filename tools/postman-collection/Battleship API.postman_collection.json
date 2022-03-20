@@ -1,0 +1,198 @@
+{
+	"info": {
+		"_postman_id": "cc2590da-8a78-46ce-b8ac-04baeeda0d5e",
+		"name": "Battleship API",
+		"description": "API for battleship game. See rules and more on [wikipedia](https://en.wikipedia.org/wiki/Battleship_(game))\n\nContact Support:\n Email: 0i99@pm.me",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "join to the game",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"http status\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{id}}\",\n  \"size\": 10,\n  \"startAt\": \"2022-01-01T00:00:00Z\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/game",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"game"
+					]
+				},
+				"description": "join to game and schedule to start at `startAt`"
+			},
+			"response": []
+		},
+		{
+			"name": "find ships by criteria",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"http status\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/game/{{id}}/ship?destroyed=false",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"game",
+						"{{id}}",
+						"ship"
+					],
+					"query": [
+						{
+							"key": "destroyed",
+							"value": "false"
+						}
+					]
+				},
+				"description": "Multiple status values can be provided with comma separated strings"
+			},
+			"response": []
+		},
+		{
+			"name": "shot",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"http status\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"x\": 8,\n  \"y\": 1,\n  \"hit\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/game/{{id}}/shot",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"game",
+						"{{id}}",
+						"shot"
+					]
+				},
+				"description": "Shot"
+			},
+			"response": []
+		},
+		{
+			"name": "get all shots",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"http status\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/game/{{id}}/shot",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"game",
+						"{{id}}",
+						"shot"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	]
+}
