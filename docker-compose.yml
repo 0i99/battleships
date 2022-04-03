@@ -1,0 +1,12 @@
+version: '3.2'
+
+services:
+  javaspringship:
+    image: pl.battleships/javaspringship
+    build: javaSpringShip/
+    container_name: javaspringship
+    ports:
+      - 8050:8050
+      - 8150:8150
+    environment:
+      team: blue
