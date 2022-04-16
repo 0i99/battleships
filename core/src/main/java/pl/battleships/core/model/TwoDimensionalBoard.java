@@ -1,15 +1,15 @@
-package pl.battleships.javaspringship.model;
+package pl.battleships.core.model;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 
 @RequiredArgsConstructor
-public class Board {
+public class TwoDimensionalBoard {
     private int MISSED_SHOT_MARKER = 0;
     private final int size;
     private final Integer[][] positions;
 
-    public Board(Integer size) {
+    public TwoDimensionalBoard(Integer size) {
         this.size = size;
         this.positions = new Integer[size][size];
     }
