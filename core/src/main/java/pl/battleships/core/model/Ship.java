@@ -31,7 +31,7 @@ public class Ship {
             this.value = value;
         }
 
-        public Integer getValue() {
+        public int getValue() {
             return value;
         }
 
@@ -40,7 +40,7 @@ public class Ship {
             return String.valueOf(value);
         }
 
-        public static Type fromValue(Integer value) {
+        public static Type fromValue(int value) {
             for (Type b : Type.values()) {
                 if (b.value.equals(value)) {
                     return b;

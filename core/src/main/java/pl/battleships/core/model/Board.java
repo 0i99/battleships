@@ -11,23 +11,27 @@ public class Board {
     private final String gameId;
     private final TwoDimensionalBoard board;
     private final List<Ship> ships;
+    @Builder.Default
     private GameStatus status = GameStatus.NOT_STARTED;
 
     /**
      * Update board and game status. Based on ship condition.
      */
     public GameStatus getGameStatus() {
-        if (ships.stream().allMatch(ship -> Boolean.TRUE.equals(ship.isDestroyed()))) {
+        if (ships.stream().allMatch(Ship::isDestroyed)) {
             status = GameStatus.OVER;
         }
         return status;
     }
 
-    public void updateBoard(){
+    public TwoDimensionalBoard getUpdatedBoard() {
+        updateBoard();
+        return board;
+    }
+
+    private void updateBoard() {
         ships.forEach(ship -> ship.getLocation().forEach(position ->
                 board.setOnBoard(position.getX(), position.getY(), Boolean.TRUE.equals(position.isHit()) ? Math.negateExact(ship.getType()) : ship.getType())
         ));
-
     }
-
 }

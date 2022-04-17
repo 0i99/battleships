@@ -9,7 +9,7 @@ public enum ShotResult {
 
     ALL_DESTROYED("all_destroyed");
 
-    private String value;
+    private final String value;
 
     ShotResult(String value) {
         this.value = value;

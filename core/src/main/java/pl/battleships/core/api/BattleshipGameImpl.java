@@ -10,7 +10,6 @@ import pl.battleships.core.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,10 @@ public class BattleshipGameImpl implements BattleshipGame {
 
     @Override
     public ShotResult opponentShot(String gameId, Position position) {
-        var board = Optional.ofNullable(historyProvider.findGame(gameId)).orElseThrow(NoGameFoundException::new);
+        var board = historyProvider.findGame(gameId);
+        if (board.isEmpty()) {
+            throw new NoGameFoundException();
+        }
         if (board.get().getStatus().equals(GameStatus.OVER)) {
             log.info("Game {} is already over", gameId);
             throw new GameOverException("Game " + gameId + " is already over");
@@ -78,12 +80,11 @@ public class BattleshipGameImpl implements BattleshipGame {
                 log.info("Ship '{}' destroyed", ship.getType());
             }
         }
-        game.updateBoard();
         if (GameStatus.OVER.equals(game.getGameStatus())) {
             shotResult = ShotResult.ALL_DESTROYED;
             log.info("All of ships are destroyed");
         }
-        log.info("Game board:\n{}", game.getBoard());
+        log.info("Game board:\n{}", game.getUpdatedBoard());
 
         position.setHit(!shotResult.equals(ShotResult.MISSED));
 
