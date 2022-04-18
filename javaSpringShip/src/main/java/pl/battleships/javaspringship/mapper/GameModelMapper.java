@@ -27,7 +27,7 @@ public class GameModelMapper {
     }
 
     public Position convert(PositionDto dto) {
-        return modelMapper.map(dto, Position.class);
+        return Position.builder().x(dto.getX()).y(dto.getY()).hit(dto.getHit()).build();
     }
 
     public ShotStatusDto convert(ShotResult shotResult) {

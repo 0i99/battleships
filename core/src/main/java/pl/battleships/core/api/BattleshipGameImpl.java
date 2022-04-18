@@ -1,64 +1,79 @@
 package pl.battleships.core.api;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.util.concurrent.*;
 import lombok.extern.slf4j.Slf4j;
-import pl.battleships.core.exception.DuplicatedGameException;
-import pl.battleships.core.exception.GameOverException;
-import pl.battleships.core.exception.InvalidParamException;
-import pl.battleships.core.exception.NoGameFoundException;
+import pl.battleships.core.exception.*;
 import pl.battleships.core.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static pl.battleships.core.model.Ship.Type.*;
 
 @Slf4j
-@RequiredArgsConstructor
 public class BattleshipGameImpl implements BattleshipGame {
 
     private static final Integer MIN_BOARD_SIZE = 10;
-    private static final Random random = new Random();
     public static final List<Ship.Type> defaultShipList = List.of(Carrier, Battleship, Cruiser, Submarine, Destroyer, Destroyer);
+    private static final Random random = new Random();
+    private final Map<String, Semaphore> semaphores = new HashMap<>();
+    private final Map<String, Board> boards = new HashMap<>();
+
     private final HistoryProvider historyProvider;
+    private final ShotHandler shotHandler;
+    private final ExecutorService executorService;
+    private final ListeningExecutorService listeningExecutorService;
+
+    public BattleshipGameImpl(HistoryProvider historyProvider, ShotHandler shotHandler) {
+        this.historyProvider = historyProvider;
+        this.shotHandler = shotHandler;
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.listeningExecutorService = MoreExecutors.listeningDecorator(this.executorService);
+    }
 
     @Override
-    public Board joinTheGame(String gameId, int size) {
+    public Board start(String gameId, int size, boolean firstShotIsYours) {
         log.info("Joining to the game {}", gameId);
-
-        if (historyProvider.findGame(gameId).isPresent()) {
-            log.warn("Already in the game {}", historyProvider.getGame(gameId));
+        if (boards.containsKey(gameId)) {
+            log.warn("Already in the game {}", boards.get(gameId));
             throw new DuplicatedGameException();
         }
         var board = prepareBoard(gameId, size);
+        boards.put(gameId, board);
+        if (firstShotIsYours) {
+            shot(gameId);
+        }
         historyProvider.addGame(gameId, board);
-        log.info("Joined to the game with id: {} ", gameId);
+        log.info("Joined to the game with id: {} , board:\n{}", gameId, board.getUpdatedBoard());
         return board;
     }
 
     @Override
+    public ShotResult opponentShot(String gameId, Position position) {
+        var board = Optional.ofNullable(boards.get(gameId)).orElseThrow(NoGameFoundException::new);
+        if (board.getStatus().equals(GameStatus.OVER)) {
+            log.info("Game {} is already over", gameId);
+            throw new GameOverException("Game " + gameId + " is already over");
+        }
+        return opponentShot(board, position);
+    }
+
+    @Override
     public List<Ship> findShips(String gameId, boolean destroyed) {
-        return historyProvider.findGame(gameId)
+        return Optional.ofNullable(boards.get(gameId))
                 .orElseThrow(NoGameFoundException::new)
                 .getShips().stream().filter(p -> p.isDestroyed() == destroyed).collect(Collectors.toList());
     }
 
-    @Override
-    public ShotResult opponentShot(String gameId, Position position) {
-        var board = historyProvider.findGame(gameId);
-        if (board.isEmpty()) {
-            throw new NoGameFoundException();
-        }
-        if (board.get().getStatus().equals(GameStatus.OVER)) {
-            log.info("Game {} is already over", gameId);
-            throw new GameOverException("Game " + gameId + " is already over");
-        }
-        return opponentShot(board.get(), position);
-    }
-
     private ShotResult opponentShot(Board game, Position position) {
+        if (isMyMove(game.getGameId())) {
+            log.warn("Invalid move in the game, semaphore acquired - my move!");
+            throw new InvalidMoveException();
+        }
         log.info("Got shot at ({},{}) for game {}", position.getX(), position.getY(), game.getGameId());
         if (Math.max(position.getX(), position.getY()) >= game.getBoard().getSize()) {
             log.error("Invalid shot ({},{}) out off the board", position.getX(), position.getY());
@@ -84,13 +99,16 @@ public class BattleshipGameImpl implements BattleshipGame {
             shotResult = ShotResult.ALL_DESTROYED;
             log.info("All of ships are destroyed");
         }
-        log.info("Game board:\n{}", game.getUpdatedBoard());
-
         position.setHit(!shotResult.equals(ShotResult.MISSED));
 
         //put shot in repository
-        historyProvider.addShotForGame(game.getGameId(), position);
+        historyProvider.opponentShotForGame(game.getGameId(), position);
 
+        if (ShotResult.MISSED.equals(shotResult)) {
+            shot(game.getGameId());
+        }
+
+        log.info("Game board:\n{}", game.getUpdatedBoard());
         return shotResult;
     }
 
@@ -119,7 +137,7 @@ public class BattleshipGameImpl implements BattleshipGame {
             freePlacesToLocateShip = getFreePlacesForPosition(position, board);
             partOfShip--;
         }
-        log.info("Board with ships:\n{}", board);
+        log.trace("Board with ships:\n{}", board);
         return ship;
     }
 
@@ -144,8 +162,75 @@ public class BattleshipGameImpl implements BattleshipGame {
                 }
             }
         }
-        log.info("Available positions for ({},{}) : {}", position.getX(), position.getY(), available.stream().map(i -> "(" + i.getX() + "," + i.getY() + ")").collect(Collectors.joining(",")));
+        log.trace("Available positions for ({},{}) : {}", position.getX(), position.getY(), available.stream().map(i -> "(" + i.getX() + "," + i.getY() + ")").collect(Collectors.joining(",")));
         return available;
     }
 
+    @Override
+    public boolean isMyMove(String gameId) {
+        return semaphores.containsKey(gameId) && semaphores.get(gameId).availablePermits() == 0;
+    }
+
+    private boolean lockMove(String gameId) {
+        log.info("Acquiring 'move' semaphore");
+        semaphores.computeIfAbsent(gameId, s -> new Semaphore(1));
+        if (!semaphores.get(gameId).tryAcquire()) {
+            log.info("Problem acquiring move semaphore");
+            return false;
+        }
+        return true;
+    }
+
+    private void unlockMove(String gameId) {
+        log.info("Releasing 'move' semaphore");
+        semaphores.get(gameId).release();
+    }
+
+    private Position getPositionToShot(String gameId) {
+        //fixme: calculate position to shot
+        return Position.builder().x(0).y(1).build();
+    }
+
+    private ListenableFuture<ShotResult> shotTask(String gameId) {
+        return listeningExecutorService.submit(() -> {
+            TimeUnit.MILLISECONDS.sleep(200);
+            Position position = getPositionToShot(gameId);
+            log.info("Making shot to {}", position);
+            return shotHandler.shotToOpponent(gameId, position);
+        });
+    }
+
+    private void shotAndHandleReponse(String gameId) {
+        if (isMyMove(gameId)) {
+            Futures.addCallback(shotTask(gameId), new FutureCallback<>() {
+                @Override
+                public void onSuccess(ShotResult result) {
+                    log.info("Shot result '{}'", result);
+                    if (result.equals(ShotResult.MISSED)) {
+                        unlockMove(gameId);
+                    } else {
+                        log.info("Shot status '{}', so making another shot", result);
+                        shotAndHandleReponse(gameId);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    log.error("Error while shooting", t);
+                    if (t instanceof InvalidMoveException) {
+                        log.warn("Invalid move");
+                        unlockMove(gameId);
+                    } else {
+                        log.info("Problem while shooting, so making another shot");
+                        shotAndHandleReponse(gameId);
+                    }
+                }
+            }, listeningExecutorService);
+        }
+    }
+
+    protected void shot(String gameId) {
+        lockMove(gameId);
+        shotAndHandleReponse(gameId);
+    }
 }

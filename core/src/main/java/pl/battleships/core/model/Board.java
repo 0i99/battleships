@@ -2,11 +2,13 @@ package pl.battleships.core.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Builder
+@Setter
 public class Board {
     private final String gameId;
     private final TwoDimensionalBoard board;

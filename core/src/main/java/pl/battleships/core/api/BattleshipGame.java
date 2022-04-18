@@ -1,7 +1,6 @@
 package pl.battleships.core.api;
 
 
-
 import pl.battleships.core.model.Board;
 import pl.battleships.core.model.Position;
 import pl.battleships.core.model.Ship;
@@ -11,9 +10,26 @@ import java.util.List;
 
 public interface BattleshipGame {
 
-    Board joinTheGame(String gameId, int size);
+    /**
+     * Create board and join to the game
+     *
+     * @param gameId
+     * @param size
+     * @param firstShotIsYours
+     * @return
+     */
+    Board start(String gameId, int size, boolean firstShotIsYours);
+
+    /**
+     * Got opponent shot
+     *
+     * @param gameId
+     * @param position
+     * @return
+     */
+    ShotResult opponentShot(String gameId, Position position);
 
     List<Ship> findShips(String gameId, boolean destroyed);
 
-    ShotResult opponentShot(String gameId, Position position);
+    boolean isMyMove(String gameId);
 }

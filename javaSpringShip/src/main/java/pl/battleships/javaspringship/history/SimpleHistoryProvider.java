@@ -13,28 +13,21 @@ public class SimpleHistoryProvider implements HistoryProvider {
     private Map<String, Board> boards = new HashMap<>();
 
     @Override
-    public Optional<Board> findGame(String gameId) {
-        return Optional.ofNullable(boards.get(gameId));
-    }
-
-    @Override
-    public Board getGame(String gameId) {
-        return boards.get(gameId);
-    }
-
-    @Override
     public Long addGame(String gameId, Board board) {
         boards.put(gameId, board);
         return 0L;
     }
 
     @Override
-    public Long addShotForGame(String gameId, pl.battleships.core.model.Position position) {
-        if (!shots.containsKey(gameId)) {
-            shots.put(gameId, new ArrayList<>());
-        }
+    public Long opponentShotForGame(String gameId, Position position) {
+        shots.computeIfAbsent(gameId, s -> new ArrayList<>());
         shots.get(gameId).add(position);
         return 0L;
+    }
+
+    @Override
+    public Long shotForGame(String s, Position position) {
+        return null;
     }
 
     @Override
