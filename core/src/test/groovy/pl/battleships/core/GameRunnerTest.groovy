@@ -11,11 +11,18 @@ import pl.battleships.core.model.ShotResult
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 class GameRunnerTest extends Specification {
 
-    def "run game"() {
-        def player1 = new BattleshipGameImpl(new OneGameHistoryProvider(), new SimpleShotHandler())
-        def player2 = new BattleshipGameImpl(new OneGameHistoryProvider(), new SimpleShotHandler())
+    def "run game for 2 local players"() {
+        def player1ShotHandler = new SimpleShotHandler()
+        def player2ShotHandler = new SimpleShotHandler()
+        def player1 = new BattleshipGameImpl(new OneGameHistoryProvider(), player1ShotHandler)
+        def player2 = new BattleshipGameImpl(new OneGameHistoryProvider(), player2ShotHandler)
+        player1ShotHandler.addOpponent(player2)
+        player2ShotHandler.addOpponent(player1)
+
         def gameId = UUID.randomUUID().toString()
         when:
         def player1Board = player1.start(gameId, 10, true)
@@ -27,8 +34,15 @@ class GameRunnerTest extends Specification {
         player2Board != null
         player2Board.gameStatus == GameStatus.RUNNING
 
-//        when:
-//        player1.opponentShot(gameId,Position.builder().x(0).y(0).build())
+        when: "get some time players to play"
+        TimeUnit.SECONDS.sleep(10)
+
+        then: "got shots"
+        true
+//        GameStatus gameStatus = GameStatus.RUNNING;
+//        while (gameStatus != GameStatus.OVER){
+//            TimeUnit.SECONDS.sleep(1)
+//        }
     }
 
     @Unroll

@@ -1,7 +1,9 @@
 package pl.battleships.core.api;
 
+import com.github.javafaker.Faker;
 import com.google.common.util.concurrent.*;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import pl.battleships.core.exception.*;
 import pl.battleships.core.model.*;
 
@@ -22,6 +24,9 @@ public class BattleshipGameImpl implements BattleshipGame {
     private static final Random random = new Random();
     private final Map<String, Semaphore> semaphores = new HashMap<>();
     private final Map<String, Board> boards = new HashMap<>();
+    private static final String MDC_PLAYER_MARKER = "PLAYER";
+    private static final String MDC_GAME_MARKER = "GAME";
+    private final String player;
 
     private final HistoryProvider historyProvider;
     private final ShotHandler shotHandler;
@@ -33,40 +38,60 @@ public class BattleshipGameImpl implements BattleshipGame {
         this.shotHandler = shotHandler;
         this.executorService = Executors.newSingleThreadExecutor();
         this.listeningExecutorService = MoreExecutors.listeningDecorator(this.executorService);
+        this.player = new Faker().funnyName().name();
     }
 
     @Override
     public Board start(String gameId, int size, boolean firstShotIsYours) {
-        log.info("Joining to the game {}", gameId);
-        if (boards.containsKey(gameId)) {
-            log.warn("Already in the game {}", boards.get(gameId));
-            throw new DuplicatedGameException();
+        try {
+            MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+            MDC.put(MDC_GAME_MARKER,gameId);
+            log.info("Joining to the game {}", gameId);
+            if (boards.containsKey(gameId)) {
+                log.warn("Already in the game {}", boards.get(gameId));
+                throw new DuplicatedGameException();
+            }
+            var board = prepareBoard(gameId, size);
+            boards.put(gameId, board);
+            if (firstShotIsYours) {
+                shot(gameId);
+            }
+            historyProvider.addGame(gameId, board);
+            log.info("Joined to the game with id: {} , board:\n{}", gameId, board.getUpdatedBoard());
+            return board;
+        } finally {
+            MDC.clear();
         }
-        var board = prepareBoard(gameId, size);
-        boards.put(gameId, board);
-        if (firstShotIsYours) {
-            shot(gameId);
-        }
-        historyProvider.addGame(gameId, board);
-        log.info("Joined to the game with id: {} , board:\n{}", gameId, board.getUpdatedBoard());
-        return board;
     }
 
     @Override
     public ShotResult opponentShot(String gameId, Position position) {
-        var board = Optional.ofNullable(boards.get(gameId)).orElseThrow(NoGameFoundException::new);
-        if (board.getStatus().equals(GameStatus.OVER)) {
-            log.info("Game {} is already over", gameId);
-            throw new GameOverException("Game " + gameId + " is already over");
+        try {
+            MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+            MDC.put(MDC_GAME_MARKER,gameId);
+            var board = Optional.ofNullable(boards.get(gameId)).orElseThrow(NoGameFoundException::new);
+            if (board.getStatus().equals(GameStatus.OVER)) {
+                log.info("Game {} is already over", gameId);
+                throw new GameOverException("Game " + gameId + " is already over");
+            }
+            return opponentShot(board, position);
+        } finally {
+            MDC.clear();
         }
-        return opponentShot(board, position);
     }
 
     @Override
     public List<Ship> findShips(String gameId, boolean destroyed) {
-        return Optional.ofNullable(boards.get(gameId))
-                .orElseThrow(NoGameFoundException::new)
-                .getShips().stream().filter(p -> p.isDestroyed() == destroyed).collect(Collectors.toList());
+        try {
+            MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+            MDC.put(MDC_GAME_MARKER,gameId);
+            return Optional.ofNullable(boards.get(gameId))
+                    .orElseThrow(NoGameFoundException::new)
+                    .getShips().stream().filter(p -> p.isDestroyed() == destroyed).collect(Collectors.toList());
+        } finally {
+            MDC.clear();
+        }
+
     }
 
     private ShotResult opponentShot(Board game, Position position) {
@@ -74,7 +99,7 @@ public class BattleshipGameImpl implements BattleshipGame {
             log.warn("Invalid move in the game, semaphore acquired - my move!");
             throw new InvalidMoveException();
         }
-        log.info("Got shot at ({},{}) for game {}", position.getX(), position.getY(), game.getGameId());
+        log.info("Got shot at ({},{})", position.getX(), position.getY());
         if (Math.max(position.getX(), position.getY()) >= game.getBoard().getSize()) {
             log.error("Invalid shot ({},{}) out off the board", position.getX(), position.getY());
             throw new InvalidParamException("Please shot on board");
@@ -105,6 +130,7 @@ public class BattleshipGameImpl implements BattleshipGame {
         historyProvider.opponentShotForGame(game.getGameId(), position);
 
         if (ShotResult.MISSED.equals(shotResult)) {
+            log.info("Missed at ({},{})",position.getX(), position.getY());
             shot(game.getGameId());
         }
 
@@ -172,7 +198,7 @@ public class BattleshipGameImpl implements BattleshipGame {
     }
 
     private boolean lockMove(String gameId) {
-        log.info("Acquiring 'move' semaphore");
+        log.info("MY MOVE - acquiring 'move' semaphore");
         semaphores.computeIfAbsent(gameId, s -> new Semaphore(1));
         if (!semaphores.get(gameId).tryAcquire()) {
             log.info("Problem acquiring move semaphore");
@@ -182,55 +208,80 @@ public class BattleshipGameImpl implements BattleshipGame {
     }
 
     private void unlockMove(String gameId) {
-        log.info("Releasing 'move' semaphore");
+        log.info("YOUR MOVE - releasing 'move' semaphore");
         semaphores.get(gameId).release();
     }
 
     private Position getPositionToShot(String gameId) {
-        //fixme: calculate position to shot
-        return Position.builder().x(0).y(1).build();
+        int size = boards.get(gameId).getBoard().getSize();
+        return Position.builder().x(random.nextInt(size)).y(random.nextInt(size)).build();
     }
 
     private ListenableFuture<ShotResult> shotTask(String gameId) {
         return listeningExecutorService.submit(() -> {
-            TimeUnit.MILLISECONDS.sleep(200);
-            Position position = getPositionToShot(gameId);
-            log.info("Making shot to {}", position);
-            return shotHandler.shotToOpponent(gameId, position);
+            try {
+                MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+                MDC.put(MDC_GAME_MARKER,gameId);
+                TimeUnit.MILLISECONDS.sleep(200);
+                Position position = getPositionToShot(gameId);
+                log.info("Making shot to {}", position);
+                return shotHandler.shotToOpponent(gameId, position);
+            } finally {
+                MDC.clear();
+            }
         });
     }
 
     private void shotAndHandleReponse(String gameId) {
         if (isMyMove(gameId)) {
+
+
             Futures.addCallback(shotTask(gameId), new FutureCallback<>() {
                 @Override
                 public void onSuccess(ShotResult result) {
-                    log.info("Shot result '{}'", result);
-                    if (result.equals(ShotResult.MISSED)) {
-                        unlockMove(gameId);
-                    } else {
-                        log.info("Shot status '{}', so making another shot", result);
-                        shotAndHandleReponse(gameId);
+                    try {
+                        MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+                        MDC.put(MDC_GAME_MARKER,gameId);
+                        log.info("Shot result '{}'", result);
+                        if (result.equals(ShotResult.MISSED)) {
+                            unlockMove(gameId);
+                        } else {
+                            log.info("Shot status '{}', so making another shot", result);
+                            shotAndHandleReponse(gameId);
+                        }
+                    } finally {
+                        MDC.clear();
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    log.error("Error while shooting", t);
-                    if (t instanceof InvalidMoveException) {
-                        log.warn("Invalid move");
-                        unlockMove(gameId);
-                    } else {
-                        log.info("Problem while shooting, so making another shot");
-                        shotAndHandleReponse(gameId);
+                    try {
+                        MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
+                        MDC.put(MDC_GAME_MARKER,gameId);
+                        log.error("Error while shooting", t);
+                        if (t instanceof InvalidMoveException) {
+                            log.warn("Invalid move");
+                            unlockMove(gameId);
+                        } else {
+                            log.info("Problem while shooting, so making another shot");
+                            shotAndHandleReponse(gameId);
+                        }
+                    } finally {
+                        MDC.clear();
                     }
                 }
             }, listeningExecutorService);
+
         }
     }
 
     protected void shot(String gameId) {
         lockMove(gameId);
         shotAndHandleReponse(gameId);
+    }
+
+    private String getMdcMarker(){
+        return player;
     }
 }
