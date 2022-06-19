@@ -130,6 +130,7 @@ components:
       required:
         - "id"
         - "size"
+        - "firstShotIsYours"
       properties:
         id:
           type: "string"
@@ -143,6 +144,10 @@ components:
           format: "date-time"
           example: "2022-01-01T00:00:00Z"
           description: "start immediately if null"
+        firstShotIsYours:
+          type: "boolean"
+          default: false
+          description: "is it You who starts the game"
     PositionDto:
       type: "object"
       properties:

@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class Board {
     private final String gameId;
-    private final TwoDimensionalBoard board;
+    private final TwoDimensionalBoard value;
     private final List<Ship> ships;
     @Builder.Default
     private GameStatus status = GameStatus.NOT_STARTED;
@@ -28,12 +28,12 @@ public class Board {
 
     public TwoDimensionalBoard getUpdatedBoard() {
         updateBoard();
-        return board;
+        return value;
     }
 
     private void updateBoard() {
         ships.forEach(ship -> ship.getLocation().forEach(position ->
-                board.setOnBoard(position.getX(), position.getY(), Boolean.TRUE.equals(position.isHit()) ? Math.negateExact(ship.getType()) : ship.getType())
+                value.setOnBoard(position.getX(), position.getY(), Boolean.TRUE.equals(position.isHit()) ? Math.negateExact(ship.getType()) : ship.getType())
         ));
     }
 }

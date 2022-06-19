@@ -20,7 +20,7 @@ import static pl.battleships.core.model.Ship.Type.*;
 public class BattleshipGameImpl implements BattleshipGame {
 
     private static final Integer MIN_BOARD_SIZE = 10;
-    public static final List<Ship.Type> defaultShipList = List.of(Carrier, Battleship, Cruiser, Submarine, Destroyer, Destroyer);
+    public static final List<Ship.Type> defaultShipList = List.of(CARRIER, BATTLESHIP, CRUISER, SUBMARINE, DESTROYER, DESTROYER);
     private static final Random random = new Random();
     private final Map<String, Semaphore> semaphores = new HashMap<>();
     private final Map<String, Board> boards = new HashMap<>();
@@ -100,7 +100,7 @@ public class BattleshipGameImpl implements BattleshipGame {
             throw new InvalidMoveException();
         }
         log.info("Got shot at ({},{})", position.getX(), position.getY());
-        if (Math.max(position.getX(), position.getY()) >= game.getBoard().getSize()) {
+        if (Math.max(position.getX(), position.getY()) >= game.getValue().getSize()) {
             log.error("Invalid shot ({},{}) out off the board", position.getX(), position.getY());
             throw new InvalidParamException("Please shot on board");
         }
@@ -112,7 +112,7 @@ public class BattleshipGameImpl implements BattleshipGame {
                 shotResult = ShotResult.HIT;
                 log.info("Position ({},{}) hit", position.getX(), position.getY());
             } else {
-                game.getBoard().missedShot(position.getX(), position.getY());
+                game.getValue().missedShot(position.getX(), position.getY());
             }
             if (ship.getLocation().stream().allMatch(Position::isHit)) {
                 ship.setDestroyed(Boolean.TRUE);
@@ -147,7 +147,7 @@ public class BattleshipGameImpl implements BattleshipGame {
                 locateShipOnBoard(Dockyard.INSTANCE.build(i), board)
         ).collect(Collectors.toList());
 
-        return Board.builder().board(board).ships(ships).gameId(gameId).status(GameStatus.RUNNING).build();
+        return Board.builder().value(board).ships(ships).gameId(gameId).status(GameStatus.RUNNING).build();
     }
 
 
@@ -156,7 +156,7 @@ public class BattleshipGameImpl implements BattleshipGame {
 
         List<Position> freePlacesToLocateShip = getFreePlaces(board);
         int partOfShip = ship.getType();
-        while (partOfShip > 0 && freePlacesToLocateShip.size() > 0) {
+        while (partOfShip > 0 && !freePlacesToLocateShip.isEmpty()) {
             Position position = freePlacesToLocateShip.get(random.nextInt(freePlacesToLocateShip.size()));
             ship.getLocation().add(position);
             board.setOnBoard(position.getX(), position.getY(), ship.getType());
@@ -213,7 +213,7 @@ public class BattleshipGameImpl implements BattleshipGame {
     }
 
     private Position getPositionToShot(String gameId) {
-        int size = boards.get(gameId).getBoard().getSize();
+        int size = boards.get(gameId).getValue().getSize();
         return Position.builder().x(random.nextInt(size)).y(random.nextInt(size)).build();
     }
 
@@ -234,7 +234,6 @@ public class BattleshipGameImpl implements BattleshipGame {
 
     private void shotAndHandleReponse(String gameId) {
         if (isMyMove(gameId)) {
-
 
             Futures.addCallback(shotTask(gameId), new FutureCallback<>() {
                 @Override

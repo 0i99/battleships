@@ -15,15 +15,15 @@ public class Ship {
     private int type;
 
     public enum Type {
-        Carrier(5),
+        CARRIER(5),
 
-        Battleship(4),
+        BATTLESHIP(4),
 
-        Cruiser(3),
+        CRUISER(3),
 
-        Submarine(2),
+        SUBMARINE(2),
 
-        Destroyer(1);
+        DESTROYER(1);
 
         private Integer value;
 

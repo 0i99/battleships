@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static pl.battleships.core.model.Ship.Type.Submarine;
+import static pl.battleships.core.model.Ship.Type.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -38,8 +38,8 @@ class BattleshipGameTest {
         Mockito.when(historyProvider.addGame(Mockito.any(), Mockito.any())).thenReturn(0L);
         Board board = player1Game.start("qwerty", 10, false);
         Assertions.assertNotNull(board);
-        Assertions.assertNotNull(board.getBoard());
-        Assertions.assertEquals(10, board.getBoard().getSize());
+        Assertions.assertNotNull(board.getValue());
+        Assertions.assertEquals(10, board.getValue().getSize());
         Assertions.assertEquals("qwerty", board.getGameId());
         Assertions.assertEquals(6, board.getShips().size());
     }
@@ -55,10 +55,10 @@ class BattleshipGameTest {
     @Test
     void checkFindingShipsForGame() {
         Board board = player1Game.start("x", 10, false);
-        board.getShips().stream().filter(ship -> Submarine.getValue() == ship.getType()).findAny().get().setDestroyed(Boolean.TRUE); //destroy one ship
+        board.getShips().stream().filter(ship -> SUBMARINE.getValue() == ship.getType()).findAny().get().setDestroyed(Boolean.TRUE); //destroy one ship
         List<Ship> xShips = player1Game.findShips("x", true);
         Assertions.assertEquals(1, xShips.size());
-        Assertions.assertTrue(xShips.stream().allMatch(ship -> ship.getType() == Submarine.getValue()));
+        Assertions.assertTrue(xShips.stream().allMatch(ship -> ship.getType() == SUBMARINE.getValue()));
     }
 
     @DisplayName("check proper handling of invalid game size")

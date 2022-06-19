@@ -24,7 +24,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public List<ShipDto> joinTheGame(GameDto game) {
-        Board board = battleshipGame.joinTheGame(game.getId(), game.getSize());
+        Board board = battleshipGame.start(game.getId(), game.getSize(),game.getFirstShotIsYours());
         return board.getShips().stream().map(mapper::convert).collect(Collectors.toList());
     }
 

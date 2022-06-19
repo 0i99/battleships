@@ -4,7 +4,6 @@ import pl.battleships.core.model.Board;
 import pl.battleships.core.model.Position;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface HistoryProvider {
 
@@ -28,6 +27,7 @@ public interface HistoryProvider {
 
     /**
      * add my shot to history
+     *
      * @param gameId
      * @param position
      * @return

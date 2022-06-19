@@ -47,7 +47,7 @@ class GameServiceTest {
     @Test
     void checkJoinTheGame() {
         GameDto game = new GameDto().id("x").size(10);
-        Mockito.when(battleshipGame.joinTheGame(Mockito.any(), Mockito.anyInt())).thenReturn(
+        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(),Mockito.anyBoolean())).thenReturn(
                 Board.builder().ships(
                         List.of(
                                 Ship.builder().type(1).destroyed(true).location(
@@ -64,7 +64,7 @@ class GameServiceTest {
     @DisplayName("check proper handling of duplicates")
     @Test
     void checkJoinForDuplicates() {
-        Mockito.when(battleshipGame.joinTheGame(Mockito.any(), Mockito.anyInt())).thenThrow(new DuplicatedGameException());
+        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(),Mockito.anyBoolean())).thenThrow(new DuplicatedGameException());
         //do not catch
         Assertions.assertThrows(DuplicatedGameException.class, () -> gameService.joinTheGame(new GameDto().id("x").size(10)));
     }
