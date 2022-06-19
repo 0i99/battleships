@@ -1,4 +1,4 @@
-package pl.battleships.javaspringship.exception;
+package pl.battleships.core.exception;
 
 public class InvalidParamException extends RuntimeException {
 

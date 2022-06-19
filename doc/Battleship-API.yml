@@ -185,4 +185,5 @@ components:
         - missed
         - hit
         - destroyed
+        - all_destroyed
 

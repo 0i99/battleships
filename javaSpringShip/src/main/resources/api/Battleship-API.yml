@@ -21,7 +21,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Game'
+              $ref: '#/components/schemas/GameDto'
         required: true
       responses:
         "200":
@@ -31,7 +31,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ship'
+                  $ref: '#/components/schemas/ShipDto'
         "409":
           description: "Conflict"
   /game/{id}/shot:
@@ -53,7 +53,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Position'
+              $ref: '#/components/schemas/PositionDto'
         required: true
       responses:
         "200":
@@ -61,14 +61,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShotResult'
+                $ref: '#/components/schemas/ShotStatusDto'
 
         "404":
           description: "Not found. Missed."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShotResult'
+                $ref: '#/components/schemas/ShotStatusDto'
     get:
       tags:
         - "game"
@@ -89,7 +89,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Position'
+                  $ref: '#/components/schemas/PositionDto'
   /game/{id}/ship:
     get:
       tags:
@@ -119,17 +119,18 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ship'
+                  $ref: '#/components/schemas/ShipDto'
         "404":
           description: "Not found"
 
 components:
   schemas:
-    Game:
+    GameDto:
       type: "object"
       required:
         - "id"
         - "size"
+        - "firstShotIsYours"
       properties:
         id:
           type: "string"
@@ -143,7 +144,11 @@ components:
           format: "date-time"
           example: "2022-01-01T00:00:00Z"
           description: "start immediately if null"
-    Position:
+        firstShotIsYours:
+          type: "boolean"
+          default: false
+          description: "is it You who starts the game"
+    PositionDto:
       type: "object"
       properties:
         x:
@@ -155,7 +160,7 @@ components:
         hit:
           type: boolean
           default: false
-    Ship:
+    ShipDto:
       type: "object"
       properties:
         destroyed:
@@ -164,7 +169,7 @@ components:
         locaction:
           type: array
           items:
-            $ref: "#/components/schemas/Position"
+            $ref: "#/components/schemas/PositionDto"
         type:
           type: integer
           enum:
@@ -179,10 +184,11 @@ components:
             - Cruiser
             - Submarine
             - Destroyer
-    ShotResult:
+    ShotStatusDto:
       type: "string"
       enum:
         - missed
         - hit
         - destroyed
+        - all_destroyed
 

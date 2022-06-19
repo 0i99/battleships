@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.battleships.api.GameApi;
-import pl.battleships.api.model.Game;
-import pl.battleships.api.model.Position;
-import pl.battleships.api.model.Ship;
-import pl.battleships.api.model.ShotResult;
-import pl.battleships.javaspringship.exception.DuplicatedGameException;
-import pl.battleships.javaspringship.exception.InvalidParamException;
-import pl.battleships.javaspringship.exception.NoGameFoundException;
+import pl.battleships.api.dto.GameDto;
+import pl.battleships.api.dto.PositionDto;
+import pl.battleships.api.dto.ShipDto;
+import pl.battleships.api.dto.ShotStatusDto;
+import pl.battleships.core.exception.DuplicatedGameException;
+import pl.battleships.core.exception.GameOverException;
+import pl.battleships.core.exception.InvalidParamException;
+import pl.battleships.core.exception.NoGameFoundException;
 import pl.battleships.javaspringship.service.GameService;
-import pl.battleships.javaspringship.service.ShotService;
 
 import java.util.List;
 
@@ -25,34 +25,25 @@ import java.util.List;
 public class GameController implements GameApi {
 
     protected final GameService gameService;
-    protected final ShotService shotService;
 
     @Override
-    public ResponseEntity<List<Ship>> find(String id, Boolean destroyed) {
-        return ResponseEntity.ok(
-                gameService.findShips(id, destroyed)
-        );
+    public ResponseEntity<List<ShipDto>> find(String id, Boolean destroyed) {
+        return ResponseEntity.ok(gameService.findShips(id, destroyed));
     }
 
     @Override
-    public ResponseEntity<List<Position>> getAllShots(String id) {
-        return ResponseEntity.ok(
-                shotService.getAllShots(id)
-        );
+    public ResponseEntity<List<PositionDto>> getAllShots(String id) {
+        return ResponseEntity.ok(gameService.getAllShots(id));
     }
 
     @Override
-    public ResponseEntity<List<Ship>> joinGame(Game game) {
-        return ResponseEntity.ok(
-                gameService.joinTheGame(game).getShips()
-        );
+    public ResponseEntity<List<ShipDto>> joinGame(GameDto game) {
+        return ResponseEntity.ok(gameService.joinTheGame(game));
     }
 
     @Override
-    public ResponseEntity<ShotResult> shot(String id, Position position) {
-        return ResponseEntity.ok(
-                gameService.shot(id, position)
-        );
+    public ResponseEntity<ShotStatusDto> shot(String id, PositionDto position) {
+        return ResponseEntity.ok(gameService.opponentShot(id, position));
     }
 
     @ExceptionHandler(DuplicatedGameException.class)
@@ -63,6 +54,11 @@ public class GameController implements GameApi {
     @ExceptionHandler(NoGameFoundException.class)
     protected ResponseEntity<Void> noGameFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(GameOverException.class)
+    protected ResponseEntity<Void> gameOver() {
+        return ResponseEntity.status(HttpStatus.GONE).build();
     }
 
     @ExceptionHandler(InvalidParamException.class)
