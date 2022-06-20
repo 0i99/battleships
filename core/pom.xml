@@ -157,8 +157,8 @@
     <distributionManagement>
             <repository>
                 <id>github</id>
-                <name>GitHub 0i99 Apache Maven Packages</name>
-                <url>https://maven.pkg.github.com/O0i99/battleships</url>
+                <name>GitHub 0i99 Packages</name>
+                <url>https://maven.pkg.github.com/0i99/battleships</url>
             </repository>
     </distributionManagement>
 
