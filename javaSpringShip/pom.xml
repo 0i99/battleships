@@ -217,6 +217,9 @@
         <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/0i99/battleships</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
