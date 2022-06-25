@@ -20,10 +20,6 @@ jobs:
       - checkout
       # Use mvn clean and package as the standard maven build phase
       - run:
-          name: "tests vars"
-          command: |
-            echo $test_var and $TEST_VAR
-      - run:
           name: Build javaSpringShip
           command: mvn -s .circleci/settings.xml -f javaSpringShip/pom.xml -B -DskipTests clean package
       # Then run your tests!

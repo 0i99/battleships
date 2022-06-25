@@ -2,7 +2,36 @@
     <servers>
         <server>
             <id>github</id>
-            <password>${env.github_circleci_read}</password>
+            <username>pat</username>
+            <password>${env.GITHUB_READ}</password>
         </server>
+
     </servers>
+
+
+    <activeProfiles>
+        <activeProfile>default</activeProfile>
+    </activeProfiles>
+
+
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                </repository>
+                <repository>
+                    <id>github</id>
+                    <url>https://maven.pkg.github.com/0i99/battleships</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+
+
+
 </settings>
