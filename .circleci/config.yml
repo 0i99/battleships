@@ -21,11 +21,11 @@ jobs:
       # Use mvn clean and package as the standard maven build phase
       - run:
           name: Build javaSpringShip
-          command: mvn -f javaSpringShip/pom.xml -B -DskipTests clean package
+          command: mvn -s .circleci/.circleci.settings.xml -f javaSpringShip/pom.xml -B -DskipTests clean package
       # Then run your tests!
       - run:
           name: Test javaSpringShip
-          command: mvn -f javaSpringShip/pom.xml test
+          command: mvn -s .circleci/.circleci.settings.xml -f javaSpringShip/pom.xml test
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
