@@ -17,6 +17,7 @@ import pl.battleships.api.dto.GameDto;
 import pl.battleships.api.dto.PositionDto;
 import pl.battleships.api.dto.ShipDto;
 import pl.battleships.api.dto.ShotStatusDto;
+import pl.battleships.core.api.ShotHandler;
 import pl.battleships.core.exception.DuplicatedGameException;
 import pl.battleships.core.exception.GameOverException;
 import pl.battleships.core.exception.NoGameFoundException;
@@ -41,6 +42,9 @@ class GameControllerTest {
 
     @Autowired
     ObjectMapper mapper;
+
+    @MockBean
+    ShotHandler shotHandler;
 
     @MockBean
     GameService gameService;
