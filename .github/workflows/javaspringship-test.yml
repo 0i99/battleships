@@ -20,5 +20,13 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: maven-settings
+      uses: s4u/maven-settings-action@v2
+      with:
+        servers: '[{"id": "github", "username": "pat", "password": "${GITHUB_TOKEN_REF}" }]'
+        githubServer: false
     - name: Test with Maven
       run: mvn -f javaSpringShip/pom.xml clean compile test
+      env:
+        GITHUB_TOKEN_REF: ${{ secrets.WORKFLOW_PAT }}
+
