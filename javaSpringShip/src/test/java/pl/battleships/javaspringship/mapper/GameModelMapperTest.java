@@ -44,7 +44,7 @@ class GameModelMapperTest {
         Assertions.assertEquals(position.isHit(), dto.getHit());
     }
 
-    @DisplayName("check mappers for Position to PositionDto and vice verse")
+    @DisplayName("check mappers for ShotResult to ShotStatusDto and vice verse")
     @Test
     void checkMapperForShotResult() {
         ShotResult shotResult = ShotResult.DESTROYED;

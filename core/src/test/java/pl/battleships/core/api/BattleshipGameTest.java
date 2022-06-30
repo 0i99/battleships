@@ -12,12 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.battleships.core.exception.*;
 import pl.battleships.core.model.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static pl.battleships.core.model.Ship.Type.*;
+import static pl.battleships.core.model.Ship.Type.SUBMARINE;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -101,18 +101,18 @@ class BattleshipGameTest {
         board = player1Game.start("z", 10, false);
         List<Position> positions = board.getShips().stream().flatMap(ship -> ship.getLocation().stream()).collect(Collectors.toList());
         ShotResult shotResult = player1Game.opponentShot("z", positions.get(0));
-        Assertions.assertNotEquals(ShotResult.MISSED,shotResult);
+        Assertions.assertNotEquals(ShotResult.MISSED, shotResult);
         shotResult = player1Game.opponentShot("z", positions.get(1));
-        Assertions.assertNotEquals(ShotResult.MISSED,shotResult);
+        Assertions.assertNotEquals(ShotResult.MISSED, shotResult);
     }
 
     @DisplayName("check shooting to opponent")
     @Test
     void checkShot() throws InterruptedException {
-        Mockito.when(shotHandler.shotToOpponent(Mockito.any(),Mockito.any())).thenThrow(new InvalidMoveException());
+        Mockito.when(shotHandler.shotToOpponent(Mockito.any(), Mockito.any())).thenThrow(new InvalidMoveException());
         player1Game.start("w", 10, true);
         TimeUnit.MILLISECONDS.sleep(1000);
-        Mockito.verify(shotHandler,Mockito.times(1)).shotToOpponent(Mockito.any(),Mockito.any());
+        Mockito.verify(shotHandler, Mockito.times(1)).shotToOpponent(Mockito.any(), Mockito.any());
         Assertions.assertFalse(player1Game.isMyMove("w"));
 
     }
@@ -120,14 +120,14 @@ class BattleshipGameTest {
     @DisplayName("check shooting to opponent, lucky scenario")
     @Test
     void checkShotHit() throws InterruptedException {
-        Mockito.when(shotHandler.shotToOpponent(Mockito.any(),Mockito.any())).thenReturn(ShotResult.HIT);
+        Mockito.when(shotHandler.shotToOpponent(Mockito.any(), Mockito.any())).thenReturn(ShotResult.HIT);
         player1Game.start("q", 10, true);
         TimeUnit.MILLISECONDS.sleep(1000);
         Assertions.assertTrue(player1Game.isMyMove("q"));
-        Mockito.verify(shotHandler,Mockito.atLeastOnce()).shotToOpponent(Mockito.any(),Mockito.any());
+        Mockito.verify(shotHandler, Mockito.atLeastOnce()).shotToOpponent(Mockito.any(), Mockito.any());
 
         Mockito.reset(shotHandler);
-        Mockito.when(shotHandler.shotToOpponent(Mockito.any(),Mockito.any())).thenReturn(ShotResult.MISSED);
+        Mockito.when(shotHandler.shotToOpponent(Mockito.any(), Mockito.any())).thenReturn(ShotResult.MISSED);
         TimeUnit.MILLISECONDS.sleep(1000);
         Assertions.assertFalse(player1Game.isMyMove("q"));
     }

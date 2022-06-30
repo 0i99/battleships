@@ -26,7 +26,7 @@ class GameRunnerTest extends Specification {
         def gameId = UUID.randomUUID().toString()
         when:
         def player1Board = player1.start(gameId, 10, true)
-        def player2Board = player2.start(gameId, 10, false)
+        def player2Board = player2.start(gameId, 10, true)
 
         then:
         player1Board != null
@@ -52,6 +52,7 @@ class GameRunnerTest extends Specification {
         def shotHandler = Mockito.mock(ShotHandler.class)
         def game = new BattleshipGameImpl(historyProvider, shotHandler)
         def board = game.start("x", 10, false)
+        board.ships.clear()
         board.ships.addAll([
                 Ship.builder().type(2).location([Position.builder().x(1).y(1).build(), Position.builder().x(1).y(2).build()]).build(),
                 Ship.builder().type(1).location([Position.builder().x(8).y(6).build()]).build()

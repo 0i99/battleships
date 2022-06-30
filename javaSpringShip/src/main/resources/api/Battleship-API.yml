@@ -187,8 +187,8 @@ components:
     ShotStatusDto:
       type: "string"
       enum:
-        - missed
-        - hit
-        - destroyed
-        - all_destroyed
+        - MISSED
+        - HIT
+        - DESTROYED
+        - ALL_DESTROYED
 
