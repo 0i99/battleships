@@ -23,6 +23,9 @@
         </rollingPolicy>
     </appender>
 
+
+    <logger name="pl.battleships.javaspringship" level="DEBUG" />
+
     <root level="info">
         <appender-ref ref="file" />
         <appender-ref ref="console" />

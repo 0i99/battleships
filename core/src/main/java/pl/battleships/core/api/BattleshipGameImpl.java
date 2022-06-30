@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static pl.battleships.core.model.Ship.Type.*;
 
@@ -24,6 +25,8 @@ public class BattleshipGameImpl implements BattleshipGame {
     private static final Random random = new Random();
     private final Map<String, Semaphore> semaphores = new HashMap<>();
     private final Map<String, Board> boards = new HashMap<>();
+    private final Map<String, LinkedList<Position>> shotsToMade = new HashMap<>();
+
     private static final String MDC_PLAYER_MARKER = "PLAYER";
     private static final String MDC_GAME_MARKER = "GAME";
     private final String player;
@@ -45,7 +48,7 @@ public class BattleshipGameImpl implements BattleshipGame {
     public Board start(String gameId, int size, boolean firstShotIsYours) {
         try {
             MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-            MDC.put(MDC_GAME_MARKER,gameId);
+            MDC.put(MDC_GAME_MARKER, gameId);
             log.info("Joining to the game {}", gameId);
             if (boards.containsKey(gameId)) {
                 log.warn("Already in the game {}", boards.get(gameId));
@@ -58,6 +61,8 @@ public class BattleshipGameImpl implements BattleshipGame {
             }
             historyProvider.addGame(gameId, board);
             log.info("Joined to the game with id: {} , board:\n{}", gameId, board.getUpdatedBoard());
+
+            prepareShotsToMade(gameId, size);
             return board;
         } finally {
             MDC.clear();
@@ -68,10 +73,10 @@ public class BattleshipGameImpl implements BattleshipGame {
     public ShotResult opponentShot(String gameId, Position position) {
         try {
             MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-            MDC.put(MDC_GAME_MARKER,gameId);
+            MDC.put(MDC_GAME_MARKER, gameId);
             var board = Optional.ofNullable(boards.get(gameId)).orElseThrow(NoGameFoundException::new);
             if (board.getStatus().equals(GameStatus.OVER)) {
-                log.info("Game {} is already over", gameId);
+                log.info("Game {} is already over. You won.", gameId);
                 throw new GameOverException("Game " + gameId + " is already over");
             }
             return opponentShot(board, position);
@@ -84,7 +89,7 @@ public class BattleshipGameImpl implements BattleshipGame {
     public List<Ship> findShips(String gameId, boolean destroyed) {
         try {
             MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-            MDC.put(MDC_GAME_MARKER,gameId);
+            MDC.put(MDC_GAME_MARKER, gameId);
             return Optional.ofNullable(boards.get(gameId))
                     .orElseThrow(NoGameFoundException::new)
                     .getShips().stream().filter(p -> p.isDestroyed() == destroyed).collect(Collectors.toList());
@@ -99,7 +104,6 @@ public class BattleshipGameImpl implements BattleshipGame {
             log.warn("Invalid move in the game, semaphore acquired - my move!");
             throw new InvalidMoveException();
         }
-        log.info("Got shot at ({},{})", position.getX(), position.getY());
         if (Math.max(position.getX(), position.getY()) >= game.getValue().getSize()) {
             log.error("Invalid shot ({},{}) out off the board", position.getX(), position.getY());
             throw new InvalidParamException("Please shot on board");
@@ -111,13 +115,13 @@ public class BattleshipGameImpl implements BattleshipGame {
                 shipPosition.get().setHit(Boolean.TRUE);
                 shotResult = ShotResult.HIT;
                 log.info("Position ({},{}) hit", position.getX(), position.getY());
+                if (ship.getLocation().stream().allMatch(Position::isHit)) {
+                    ship.setDestroyed(Boolean.TRUE);
+                    shotResult = ShotResult.DESTROYED;
+                    log.info("Ship '{}' destroyed", ship.getType());
+                }
             } else {
                 game.getValue().missedShot(position.getX(), position.getY());
-            }
-            if (ship.getLocation().stream().allMatch(Position::isHit)) {
-                ship.setDestroyed(Boolean.TRUE);
-                shotResult = ShotResult.DESTROYED;
-                log.info("Ship '{}' destroyed", ship.getType());
             }
         }
         if (GameStatus.OVER.equals(game.getGameStatus())) {
@@ -130,7 +134,7 @@ public class BattleshipGameImpl implements BattleshipGame {
         historyProvider.opponentShotForGame(game.getGameId(), position);
 
         if (ShotResult.MISSED.equals(shotResult)) {
-            log.info("Missed at ({},{})",position.getX(), position.getY());
+            log.info("Missed at ({},{})", position.getX(), position.getY());
             shot(game.getGameId());
         }
 
@@ -214,15 +218,19 @@ public class BattleshipGameImpl implements BattleshipGame {
 
     private Position getPositionToShot(String gameId) {
         int size = boards.get(gameId).getValue().getSize();
-        return Position.builder().x(random.nextInt(size)).y(random.nextInt(size)).build();
+        try {
+            return shotsToMade.get(gameId).pop();
+        } catch (NoSuchElementException e) {
+            return Position.builder().x(random.nextInt(size)).y(random.nextInt(size)).build();
+        }
     }
 
     private ListenableFuture<ShotResult> shotTask(String gameId) {
         return listeningExecutorService.submit(() -> {
             try {
                 MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-                MDC.put(MDC_GAME_MARKER,gameId);
-                TimeUnit.MILLISECONDS.sleep(200);
+                MDC.put(MDC_GAME_MARKER, gameId);
+                TimeUnit.MILLISECONDS.sleep(100);
                 Position position = getPositionToShot(gameId);
                 log.info("Making shot to {}", position);
                 return shotHandler.shotToOpponent(gameId, position);
@@ -240,12 +248,12 @@ public class BattleshipGameImpl implements BattleshipGame {
                 public void onSuccess(ShotResult result) {
                     try {
                         MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-                        MDC.put(MDC_GAME_MARKER,gameId);
-                        log.info("Shot result '{}'", result);
+                        MDC.put(MDC_GAME_MARKER, gameId);
                         if (result.equals(ShotResult.MISSED)) {
+                            log.info("Shot result '{}'", result);
                             unlockMove(gameId);
                         } else {
-                            log.info("Shot status '{}', so making another shot", result);
+                            log.info("Shot result '{}', so making another shot", result);
                             shotAndHandleReponse(gameId);
                         }
                     } finally {
@@ -257,12 +265,16 @@ public class BattleshipGameImpl implements BattleshipGame {
                 public void onFailure(Throwable t) {
                     try {
                         MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-                        MDC.put(MDC_GAME_MARKER,gameId);
+                        MDC.put(MDC_GAME_MARKER, gameId);
                         log.error("Error while shooting", t);
-                        if (t instanceof InvalidMoveException) {
+                        try {
+                            throw t;
+                        } catch (InvalidMoveException e) {
                             log.warn("Invalid move");
                             unlockMove(gameId);
-                        } else {
+                        } catch (GameOverException e) {
+                            log.info("Game {} is over. I won",gameId);
+                        } catch (Throwable e) {
                             log.info("Problem while shooting, so making another shot");
                             shotAndHandleReponse(gameId);
                         }
@@ -273,6 +285,7 @@ public class BattleshipGameImpl implements BattleshipGame {
             }, listeningExecutorService);
 
         }
+
     }
 
     protected void shot(String gameId) {
@@ -280,7 +293,15 @@ public class BattleshipGameImpl implements BattleshipGame {
         shotAndHandleReponse(gameId);
     }
 
-    private String getMdcMarker(){
+    private String getMdcMarker() {
         return player;
+    }
+
+    private void prepareShotsToMade(String gameId, int size) {
+        LinkedList list = IntStream.range(0, size).boxed().flatMap(p ->
+                IntStream.range(0, size).boxed().map(y -> Position.builder().x(p).y(y).build())
+        ).collect(Collectors.toCollection(LinkedList::new));
+        Collections.shuffle(list);
+        shotsToMade.put(gameId, list);
     }
 }

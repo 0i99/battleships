@@ -1,12 +1,29 @@
 version: '3.2'
 
 services:
-  javaspringship:
-    image: pl.battleships/javaspringship
+  blueteam:
+    image: pl.battleships/redteam
     build: javaSpringShip/
-    container_name: javaspringship
+    container_name: blueteam
     ports:
       - 8050:8050
       - 8150:8150
     environment:
-      team: blue
+      SERVER_PORT: 8050
+      GEAM_TEAM: blue
+      GAME_OPPONENTURL: http://redteam:8051
+      GAME_SLEEP: 50
+     
+
+  redteam:
+    image: pl.battleships/redteam
+    build: javaSpringShip/
+    container_name: redteam
+    ports:
+      - 8051:8051
+      - 8151:8151
+    environment:
+      SERVER_PORT: 8051
+      GEAM_TEAM: red
+      GAME_OPPONENTURL: http://blueteam:8050
+      GAME_SLEEP: 50

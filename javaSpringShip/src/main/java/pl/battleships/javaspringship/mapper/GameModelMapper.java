@@ -31,6 +31,6 @@ public class GameModelMapper {
     }
 
     public ShotStatusDto convert(ShotResult shotResult) {
-        return ShotStatusDto.fromValue(shotResult.getValue());
+        return ShotStatusDto.fromValue(shotResult.name());
     }
 }
