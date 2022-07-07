@@ -13,3 +13,9 @@ management:
       show-details: always
       cache:
         time-to-live: 30s
+
+game:
+  team: "none"
+  opponentUrl: "localhost:8080"
+  timeout: 1000
+  sleep: 1500

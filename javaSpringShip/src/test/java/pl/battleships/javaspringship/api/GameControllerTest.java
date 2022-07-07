@@ -44,9 +44,6 @@ class GameControllerTest {
     ObjectMapper mapper;
 
     @MockBean
-    ShotHandler shotHandler;
-
-    @MockBean
     GameService gameService;
 
     @DisplayName("positive join the game")

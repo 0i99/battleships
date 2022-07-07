@@ -11,10 +11,7 @@ import pl.battleships.api.dto.GameDto;
 import pl.battleships.api.dto.PositionDto;
 import pl.battleships.api.dto.ShipDto;
 import pl.battleships.api.dto.ShotStatusDto;
-import pl.battleships.core.exception.DuplicatedGameException;
-import pl.battleships.core.exception.GameOverException;
-import pl.battleships.core.exception.InvalidParamException;
-import pl.battleships.core.exception.NoGameFoundException;
+import pl.battleships.core.exception.*;
 import pl.battleships.javaspringship.service.GameService;
 
 import java.util.List;
@@ -53,17 +50,24 @@ public class GameController implements GameApi {
 
     @ExceptionHandler(NoGameFoundException.class)
     protected ResponseEntity<Void> noGameFound() {
+        log.error("Game not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @ExceptionHandler(GameOverException.class)
     protected ResponseEntity<Void> gameOver() {
+        log.error("Game over");
         return ResponseEntity.status(HttpStatus.GONE).build();
     }
 
     @ExceptionHandler(InvalidParamException.class)
     protected ResponseEntity<Void> invalidParams() {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
+
+    @ExceptionHandler(InvalidMoveException.class)
+    protected ResponseEntity<Void> invalidMoveException(){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }
