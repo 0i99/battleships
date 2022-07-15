@@ -2,7 +2,6 @@ package pl.battleships.javaspringship.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,25 +11,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import pl.battleships.api.dto.GameDto;
 import pl.battleships.api.dto.PositionDto;
-import pl.battleships.api.dto.ShipDto;
 import pl.battleships.api.dto.ShotStatusDto;
-import pl.battleships.core.api.ShotHandler;
 import pl.battleships.core.exception.DuplicatedGameException;
 import pl.battleships.core.exception.GameOverException;
 import pl.battleships.core.exception.NoGameFoundException;
 import pl.battleships.javaspringship.service.GameService;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -49,62 +42,27 @@ class GameControllerTest {
     @DisplayName("positive join the game")
     @Test
     void joinGame() throws Exception {
-        var ships = List.of(
-                new ShipDto().type(ShipDto.TypeEnum.Destroyer).destroyed(false).locaction(
-                        List.of(new PositionDto().x(1).y(1), new PositionDto().x(2).y(2))
-                )
-        );
-        Mockito.when(gameService.joinTheGame(Mockito.any())).thenReturn(ships);
-        String expected = mapper.writeValueAsString(ships);
         mockMvc.perform(
                         post("/game")
                                 .content(mapper.writeValueAsString(
-                                        new GameDto().id(UUID.randomUUID().toString()).size(10).startAt(OffsetDateTime.now().plus(5L, ChronoUnit.MINUTES))
+                                        new GameDto().id(UUID.randomUUID().toString()).size(10)
                                 ))
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(expected))
                 .andReturn();
     }
 
     @DisplayName("duplicate while joining the game")
     @Test
     void joinGameDuplicate() throws Exception {
-        Mockito.when(gameService.joinTheGame(Mockito.any())).thenThrow(new DuplicatedGameException());
+        Mockito.doThrow(DuplicatedGameException.class).when(gameService).joinTheGame(Mockito.any());
         mockMvc.perform(
                 post("/game")
                         .content(mapper.writeValueAsString(
-                                new GameDto().id(UUID.randomUUID().toString()).size(10).startAt(OffsetDateTime.now().plus(5L, ChronoUnit.MINUTES))
+                                new GameDto().id(UUID.randomUUID().toString()).size(10)
                         ))
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().is(HttpStatus.CONFLICT.value()));
-    }
-
-    @DisplayName("check find endpoint")
-    @Test
-    void find() throws Exception {
-
-        Mockito.when(gameService.findShips(Mockito.any(), Mockito.anyBoolean())).thenReturn(List.of(new ShipDto().type(ShipDto.TypeEnum.Destroyer)));
-        MvcResult mvcResult = mockMvc.perform(
-                        get("/game/x/ship")
-                                .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().is2xxSuccessful())
-                .andReturn();
-
-        var list = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
-        Assertions.assertEquals(1, list.size());
-    }
-
-    @DisplayName("check find endpoint, not found")
-    @Test
-    void findNotFound() throws Exception {
-        Mockito.reset(gameService);
-        Mockito.when(gameService.findShips(Mockito.any(), Mockito.anyBoolean())).thenThrow(new NoGameFoundException());
-
-        mockMvc.perform(
-                get("/game/x/ship")
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
     @DisplayName("check shot endpoint")

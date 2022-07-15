@@ -5,11 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.battleships.api.GameApi;
 import pl.battleships.api.dto.GameDto;
+import pl.battleships.api.dto.GameStatusDto;
 import pl.battleships.api.dto.PositionDto;
-import pl.battleships.api.dto.ShipDto;
 import pl.battleships.api.dto.ShotStatusDto;
 import pl.battleships.core.exception.*;
 import pl.battleships.javaspringship.service.GameService;
@@ -19,14 +20,10 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class GameController implements GameApi {
 
     protected final GameService gameService;
-
-    @Override
-    public ResponseEntity<List<ShipDto>> find(String id, Boolean destroyed) {
-        return ResponseEntity.ok(gameService.findShips(id, destroyed));
-    }
 
     @Override
     public ResponseEntity<List<PositionDto>> getAllShots(String id) {
@@ -34,8 +31,14 @@ public class GameController implements GameApi {
     }
 
     @Override
-    public ResponseEntity<List<ShipDto>> joinGame(GameDto game) {
-        return ResponseEntity.ok(gameService.joinTheGame(game));
+    public ResponseEntity<GameStatusDto> getGameStatus(String id) {
+        return ResponseEntity.ok(gameService.getGameStatus(id));
+    }
+
+    @Override
+    public ResponseEntity<Void> joinGame(GameDto gameDto) {
+        gameService.joinTheGame(gameDto);
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -66,7 +69,7 @@ public class GameController implements GameApi {
     }
 
     @ExceptionHandler(InvalidMoveException.class)
-    protected ResponseEntity<Void> invalidMoveException(){
+    protected ResponseEntity<Void> invalidMoveException() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 

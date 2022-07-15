@@ -85,20 +85,6 @@ public class BattleshipGameImpl implements BattleshipGame {
         }
     }
 
-    @Override
-    public List<Ship> findShips(String gameId, boolean destroyed) {
-        try {
-            MDC.put(MDC_PLAYER_MARKER, getMdcMarker());
-            MDC.put(MDC_GAME_MARKER, gameId);
-            return Optional.ofNullable(boards.get(gameId))
-                    .orElseThrow(NoGameFoundException::new)
-                    .getShips().stream().filter(p -> p.isDestroyed() == destroyed).collect(Collectors.toList());
-        } finally {
-            MDC.clear();
-        }
-
-    }
-
     private ShotResult opponentShot(Board game, Position position) {
         if (isMyMove(game.getGameId())) {
             log.warn("Invalid move in the game, semaphore acquired - my move!");
@@ -273,7 +259,7 @@ public class BattleshipGameImpl implements BattleshipGame {
                             log.warn("Invalid move");
                             unlockMove(gameId);
                         } catch (GameOverException e) {
-                            log.info("Game {} is over. I won",gameId);
+                            log.info("Game {} is over. I won", gameId);
                         } catch (Throwable e) {
                             log.info("Problem while shooting, so making another shot");
                             shotAndHandleReponse(gameId);
@@ -303,5 +289,12 @@ public class BattleshipGameImpl implements BattleshipGame {
         ).collect(Collectors.toCollection(LinkedList::new));
         Collections.shuffle(list);
         shotsToMade.put(gameId, list);
+    }
+
+    @Override
+    public GameStatus getGameStatus(String gameId) {
+        return Optional.ofNullable(boards.get(gameId))
+                .orElseThrow(NoGameFoundException::new)
+                .getGameStatus();
     }
 }

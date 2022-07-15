@@ -1,10 +1,7 @@
 package pl.battleships.core.api;
 
 
-import pl.battleships.core.model.Board;
-import pl.battleships.core.model.Position;
-import pl.battleships.core.model.Ship;
-import pl.battleships.core.model.ShotResult;
+import pl.battleships.core.model.*;
 
 import java.util.List;
 
@@ -29,7 +26,12 @@ public interface BattleshipGame {
      */
     ShotResult opponentShot(String gameId, Position position);
 
-    List<Ship> findShips(String gameId, boolean destroyed);
-
     boolean isMyMove(String gameId);
+
+    /**
+     * Get game status
+     * @param gameId
+     * @return
+     */
+    GameStatus getGameStatus(String gameId);
 }
