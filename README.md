@@ -22,6 +22,11 @@ Plese click [here](doc/c4.md) to see C4 model .
 
 [![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main)
 
+## Current stacks
+
+- [coordinator/vueCoordinator](coordinator/vueCoordinator) - simple GUI, application written in Vue 3+, Bootstrap
+- [javaSpringShip](javaSpringShip) - application written in Java 11 + Spring boot 2.7
+- [core](core) - core , simplyfy creating specific stack app (see above)
 
 # Run
 
