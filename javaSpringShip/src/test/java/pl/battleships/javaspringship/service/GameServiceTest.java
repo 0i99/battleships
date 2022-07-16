@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import pl.battleships.api.dto.GameDto;
 import pl.battleships.api.dto.PositionDto;
-import pl.battleships.api.dto.ShipDto;
 import pl.battleships.api.dto.ShotStatusDto;
 import pl.battleships.core.api.BattleshipGame;
 import pl.battleships.core.api.HistoryProvider;
@@ -47,7 +46,7 @@ class GameServiceTest {
     @Test
     void checkJoinTheGame() {
         GameDto game = new GameDto().id("x").size(10);
-        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(),Mockito.anyBoolean())).thenReturn(
+        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(), Mockito.anyBoolean())).thenReturn(
                 Board.builder().ships(
                         List.of(
                                 Ship.builder().type(1).destroyed(true).location(
@@ -56,31 +55,15 @@ class GameServiceTest {
                                         List.of(Position.builder().x(4).y(4).build())).build())
                 ).build()
         );
-        List<ShipDto> ships = gameService.joinTheGame(game);
-        Assertions.assertNotNull(ships);
-        Assertions.assertEquals(2, ships.size());
+        gameService.joinTheGame(game);
     }
 
     @DisplayName("check proper handling of duplicates")
     @Test
     void checkJoinForDuplicates() {
-        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(),Mockito.anyBoolean())).thenThrow(new DuplicatedGameException());
+        Mockito.when(battleshipGame.start(Mockito.any(), Mockito.anyInt(), Mockito.anyBoolean())).thenThrow(new DuplicatedGameException());
         //do not catch
         Assertions.assertThrows(DuplicatedGameException.class, () -> gameService.joinTheGame(new GameDto().id("x").size(10)));
-    }
-
-    @DisplayName("check finding ships for game")
-    @Test
-    void checkFindingShipsForGame() {
-        Mockito.when(battleshipGame.findShips(Mockito.any(), Mockito.anyBoolean())).thenReturn(
-                List.of(
-                        Ship.builder().type(1).location(List.of(Position.builder().x(5).y(6).build())).build(),
-                        Ship.builder().type(1).location(List.of(Position.builder().x(8).y(9).build())).build()
-                )
-        );
-        List<ShipDto> ships = gameService.findShips("x", true);
-        Assertions.assertEquals(2, ships.size());
-        Assertions.assertTrue(ships.stream().allMatch(ship -> ship.getType().getValue().equals(1)));
     }
 
     @DisplayName("check getting all shots")

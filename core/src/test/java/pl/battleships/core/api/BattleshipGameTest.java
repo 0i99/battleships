@@ -12,12 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.battleships.core.exception.*;
 import pl.battleships.core.model.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static pl.battleships.core.model.Ship.Type.SUBMARINE;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -49,16 +47,6 @@ class BattleshipGameTest {
     void checkJoinForDuplicates() {
         player1Game.start("x", 10, false);
         Assertions.assertThrows(DuplicatedGameException.class, () -> player1Game.start("x", 10, false));
-    }
-
-    @DisplayName("check finding ships for game")
-    @Test
-    void checkFindingShipsForGame() {
-        Board board = player1Game.start("x", 10, false);
-        board.getShips().stream().filter(ship -> SUBMARINE.getValue() == ship.getType()).findAny().get().setDestroyed(Boolean.TRUE); //destroy one ship
-        List<Ship> xShips = player1Game.findShips("x", true);
-        Assertions.assertEquals(1, xShips.size());
-        Assertions.assertTrue(xShips.stream().allMatch(ship -> ship.getType() == SUBMARINE.getValue()));
     }
 
     @DisplayName("check proper handling of invalid game size")
@@ -130,6 +118,21 @@ class BattleshipGameTest {
         Mockito.when(shotHandler.shotToOpponent(Mockito.any(), Mockito.any())).thenReturn(ShotResult.MISSED);
         TimeUnit.MILLISECONDS.sleep(1000);
         Assertions.assertFalse(player1Game.isMyMove("q"));
+    }
+
+    @DisplayName("check game status")
+    @Test
+    void checkGameStatus() {
+        var gameId = "qwerty";
+        Assertions.assertThrows(NoGameFoundException.class, () -> player1Game.getGameStatus(gameId));
+
+        Board board = player1Game.start(gameId, 10, false);
+        Assertions.assertNotNull(board);
+        Assertions.assertEquals(GameStatus.RUNNING, player1Game.getGameStatus(gameId));
+
+        //destoy all ships hack
+        board.getShips().forEach(p -> p.setDestroyed(true));
+        Assertions.assertEquals(GameStatus.OVER, player1Game.getGameStatus(gameId));
     }
 
 }

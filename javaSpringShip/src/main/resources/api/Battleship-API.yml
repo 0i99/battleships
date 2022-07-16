@@ -26,14 +26,29 @@ paths:
       responses:
         "200":
           description: "Ok"
+        "409":
+          description: "Conflict"
+  /game/{id}:
+    get:
+      tags:
+        - "game status"
+      summary: "get game status"
+      operationId: getGameStatus
+      parameters:
+        - in: path
+          description: "game id"
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: "get game status"
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ShipDto'
-        "409":
-          description: "Conflict"
+                $ref: '#/components/schemas/GameStatusDto'
+
   /game/{id}/shot:
     post:
       tags:
@@ -90,38 +105,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PositionDto'
-  /game/{id}/ship:
-    get:
-      tags:
-        - "game"
-      summary: "find ships by criteria"
-      description: "Multiple status values can be provided with comma separated strings"
-      operationId: "find"
-      parameters:
-        - in: path
-          description: game id
-          name: id
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: destroyed
-          description: destroyed or not
-          required: true
-          schema:
-            type: boolean
-            default: false
-      responses:
-        "200":
-          description: "successful operation"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ShipDto'
-        "404":
-          description: "Not found"
 
 components:
   schemas:
@@ -139,11 +122,6 @@ components:
           type: integer
           default: 10
           description: "grid size, default 10x10"
-        startAt:
-          type: "string"
-          format: "date-time"
-          example: "2022-01-01T00:00:00Z"
-          description: "start immediately if null"
         firstShotIsYours:
           type: "boolean"
           default: false
@@ -160,30 +138,6 @@ components:
         hit:
           type: boolean
           default: false
-    ShipDto:
-      type: "object"
-      properties:
-        destroyed:
-          type: boolean
-          default: false
-        locaction:
-          type: array
-          items:
-            $ref: "#/components/schemas/PositionDto"
-        type:
-          type: integer
-          enum:
-            - 5
-            - 4
-            - 3
-            - 2
-            - 1
-          x-enum-varnames:
-            - Carrier
-            - Battleship
-            - Cruiser
-            - Submarine
-            - Destroyer
     ShotStatusDto:
       type: "string"
       enum:
@@ -191,4 +145,10 @@ components:
         - HIT
         - DESTROYED
         - ALL_DESTROYED
+    GameStatusDto:
+      type: string
+      enum:
+        - RUNNING
+        - OVER
+
 

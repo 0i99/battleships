@@ -1,8 +1,18 @@
 version: '3.2'
 
 services:
+  coordinator:
+    container_name: coordinator
+    image: "pl.battleships/vue-coordinator"
+    depends_on:
+      - redteam
+      - blueteam
+    build: coordinator/vueCoordinator
+    ports:
+      - 8080:80
+
   blueteam:
-    image: pl.battleships/redteam
+    image: pl.battleships/java-spring-ship
     build: javaSpringShip/
     container_name: blueteam
     ports:
@@ -16,7 +26,7 @@ services:
      
 
   redteam:
-    image: pl.battleships/redteam
+    image: pl.battleships/java-spring-ship
     build: javaSpringShip/
     container_name: redteam
     ports:
@@ -27,3 +37,5 @@ services:
       GEAM_TEAM: red
       GAME_OPPONENTURL: http://blueteam:8050
       GAME_SLEEP: 50
+
+
