@@ -24,15 +24,11 @@ npm run serve
 npm run build
 ```
 
-### Run your unit tests
+### Build and run from docker file
 ```
-c
-```
-
-### Lints and fixes files
-```
-npm run lint
+docker build -t battleships/vue-coordinator .
+docker run -it -p 8080:80 --rm --name vue-coordinator-1 battleships/vue-coordinator
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
