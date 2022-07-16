@@ -25,8 +25,8 @@ Plese click [here](doc/c4.md) to see C4 model .
 
 # Run
 
-You have to run at least two opponenst and coordinator. You don't need maven, npm or any other developer tools ... all You need is docker.
- 
+You have to run at least two opponents and coordinator. You don't need maven, npm or any other developer tools ... all You need is docker.
+
 Please type:
 
 ```
