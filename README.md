@@ -23,3 +23,22 @@ Plese click [here](doc/c4.md) to see C4 model .
 [![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main)
 
 
+# Run
+
+You have to run at least two opponenst and coordinator. You don't need maven, npm or any other developer tools ... all You need is docker.
+ 
+Please type:
+
+```
+docker-compose up
+```
+
+
+Next go to [coordinator page at localhost:8080](http://localhost:8080) and click run
+
+![](doc/battleship.gif)
+
+wait and see how apps are fighting
+
+
+
