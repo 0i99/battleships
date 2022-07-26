@@ -1,4 +1,4 @@
-# Battleships
+# Battleships [![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main)
 
 ![](doc/img/board.png)
 
@@ -19,8 +19,6 @@ This is the reason this project was made - **to play with vary technological sta
 
 Plese click [here](doc/c4.md) to see C4 model .
 
-
-[![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main)
 
 ## Current stacks
 
