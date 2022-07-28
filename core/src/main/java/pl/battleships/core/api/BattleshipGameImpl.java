@@ -1,6 +1,5 @@
 package pl.battleships.core.api;
 
-import com.github.javafaker.Faker;
 import com.google.common.util.concurrent.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -29,7 +28,7 @@ public class BattleshipGameImpl implements BattleshipGame {
 
     private static final String MDC_PLAYER_MARKER = "PLAYER";
     private static final String MDC_GAME_MARKER = "GAME";
-    private final String player;
+    private final String playerId;
 
     private final HistoryProvider historyProvider;
     private final ShotHandler shotHandler;
@@ -41,7 +40,7 @@ public class BattleshipGameImpl implements BattleshipGame {
         this.shotHandler = shotHandler;
         this.executorService = Executors.newSingleThreadExecutor();
         this.listeningExecutorService = MoreExecutors.listeningDecorator(this.executorService);
-        this.player = new Faker().funnyName().name();
+        this.playerId = UUID.randomUUID().toString();
     }
 
     @Override
@@ -280,11 +279,11 @@ public class BattleshipGameImpl implements BattleshipGame {
     }
 
     private String getMdcMarker() {
-        return player;
+        return playerId;
     }
 
     private void prepareShotsToMade(String gameId, int size) {
-        LinkedList list = IntStream.range(0, size).boxed().flatMap(p ->
+        var list = IntStream.range(0, size).boxed().flatMap(p ->
                 IntStream.range(0, size).boxed().map(y -> Position.builder().x(p).y(y).build())
         ).collect(Collectors.toCollection(LinkedList::new));
         Collections.shuffle(list);

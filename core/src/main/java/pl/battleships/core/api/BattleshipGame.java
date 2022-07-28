@@ -3,8 +3,6 @@ package pl.battleships.core.api;
 
 import pl.battleships.core.model.*;
 
-import java.util.List;
-
 public interface BattleshipGame {
 
     /**
