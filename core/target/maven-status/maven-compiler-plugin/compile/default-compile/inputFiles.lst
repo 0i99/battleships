@@ -1,0 +1,16 @@
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/ShotHandler.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/BattleshipGame.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/exception/DuplicatedGameException.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/Ship.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/TwoDimensionalBoard.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/Board.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/ShotResult.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/Dockyard.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/HistoryProvider.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/exception/NoGameFoundException.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/BattleshipGameImpl.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/exception/InvalidMoveException.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/Position.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/exception/InvalidParamException.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/exception/GameOverException.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/GameStatus.java
