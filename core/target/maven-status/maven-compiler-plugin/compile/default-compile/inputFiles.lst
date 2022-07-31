@@ -4,6 +4,7 @@
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/Ship.java
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/TwoDimensionalBoard.java
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/Board.java
+/home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/util/RandomUtil.java
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/model/ShotResult.java
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/Dockyard.java
 /home/piotrek/Projects/battleships/core/src/main/java/pl/battleships/core/api/HistoryProvider.java

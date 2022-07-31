@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pl.battleships.core.api.BattleshipGameTest
 -------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.884 sec - in pl.battleships.core.api.BattleshipGameTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.903 sec - in pl.battleships.core.api.BattleshipGameTest
