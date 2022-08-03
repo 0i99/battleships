@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 
 @Path("/game")
-@RegisterRestClient(configKey = "game-api")
+@RegisterRestClient(configKey = "game")
 public interface RestClientGameApi {
 
     @POST

@@ -9,6 +9,19 @@ info:
     name: "MIT license"
     url: "https://github.com/0i99/battleships/blob/main/LICENSE"
 paths:
+  /information:
+    get:
+      tags:
+        - "application info, stack"
+      summary: "get application info"
+      operationId: info
+      responses:
+        "200":
+          description: "get application info"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoDto'
   /game:
     post:
       tags:
@@ -108,6 +121,20 @@ paths:
 
 components:
   schemas:
+    InfoDto:
+      type: "object"
+      required:
+        - "name"
+        - "tags"
+      properties:
+        name:
+          type: "string"
+          example : "javaQuarkusShip"
+        details:
+          type: array
+          items:
+            type: string
+
     GameDto:
       type: "object"
       required:

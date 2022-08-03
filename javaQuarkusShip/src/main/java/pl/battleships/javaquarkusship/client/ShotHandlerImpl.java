@@ -18,7 +18,7 @@ public class ShotHandlerImpl implements ShotHandler {
     @Inject
     GameProperties properties;
 
-    @ConfigProperty(name = "quarkus.rest-client.game-api.url")
+    @ConfigProperty(name = "quarkus.rest-client.game.url")
     String opponentUrl;
 
     @Inject
