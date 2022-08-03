@@ -24,6 +24,7 @@ Plese click [here](doc/c4.md) to see C4 model .
 
 - [coordinator/vueCoordinator](coordinator/vueCoordinator) - simple GUI, application written in Vue 3+, Bootstrap
 - [javaSpringShip](javaSpringShip) - application written in Java 11 + Spring boot 2.7
+- [javaQuarkusShip](javaQuarkusShip) - application writen in Java 11 + Quarkus 2.11
 - [core](core) - core , simplyfy creating specific stack app (see above)
 
 # Run
