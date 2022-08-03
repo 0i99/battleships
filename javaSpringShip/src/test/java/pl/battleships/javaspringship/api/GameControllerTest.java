@@ -65,56 +65,56 @@ class GameControllerTest {
         ).andExpect(status().is(HttpStatus.CONFLICT.value()));
     }
 
-    @DisplayName("check shot endpoint")
-    @Test
-    void shot() throws Exception {
-        Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenReturn(ShotStatusDto.HIT);
-        mockMvc.perform(
-                post("/game/x/shot")
-                        .content(mapper.writeValueAsString(
-                                new PositionDto().x(1).y(2)
-                        ))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is2xxSuccessful());
-    }
+        @DisplayName("check shot endpoint")
+        @Test
+        void shot() throws Exception {
+            Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenReturn(ShotStatusDto.HIT);
+            mockMvc.perform(
+                    post("/game/x/shot")
+                            .content(mapper.writeValueAsString(
+                                    new PositionDto().x(1).y(2)
+                            ))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+            ).andExpect(status().is2xxSuccessful());
+        }
 
-    @DisplayName("check shot endpoint, not found")
-    @Test
-    void shotNotFound() throws Exception {
-        Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenThrow(new NoGameFoundException());
+        @DisplayName("check shot endpoint, not found")
+        @Test
+        void shotNotFound() throws Exception {
+            Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenThrow(new NoGameFoundException());
 
-        mockMvc.perform(
-                post("/game/x/shot")
-                        .content(mapper.writeValueAsString(
-                                new PositionDto().x(1).y(2)
-                        ))
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is(HttpStatus.NOT_FOUND.value()));
-    }
+            mockMvc.perform(
+                    post("/game/x/shot")
+                            .content(mapper.writeValueAsString(
+                                    new PositionDto().x(1).y(2)
+                            ))
+                            .contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+        }
 
-    @DisplayName("check shot endpoint, game over")
-    @Test
-    void gameOVer() throws Exception {
-        Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenThrow(new GameOverException());
+        @DisplayName("check shot endpoint, game over")
+        @Test
+        void gameOVer() throws Exception {
+            Mockito.when(gameService.opponentShot(Mockito.any(), Mockito.any())).thenThrow(new GameOverException());
 
-        mockMvc.perform(
-                post("/game/x/shot")
-                        .content(mapper.writeValueAsString(
-                                new PositionDto().x(1).y(2)
-                        ))
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is(HttpStatus.GONE.value()));
-    }
+            mockMvc.perform(
+                    post("/game/x/shot")
+                            .content(mapper.writeValueAsString(
+                                    new PositionDto().x(1).y(2)
+                            ))
+                            .contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(status().is(HttpStatus.GONE.value()));
+        }
 
-    @DisplayName("check get all shots enpoint")
-    @Test
-    void getAllShots() throws Exception {
-        Mockito.when(gameService.getAllShots(Mockito.any())).thenReturn(List.of(new PositionDto().x(1).y(2).hit(Boolean.FALSE), new PositionDto().x(6).y(8).hit(Boolean.TRUE)));
-        mockMvc.perform(
-                get("/game/x/shot")
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is2xxSuccessful());
-    }
+        @DisplayName("check get all shots enpoint")
+        @Test
+        void getAllShots() throws Exception {
+            Mockito.when(gameService.getAllShots(Mockito.any())).thenReturn(List.of(new PositionDto().x(1).y(2).hit(Boolean.FALSE), new PositionDto().x(6).y(8).hit(Boolean.TRUE)));
+            mockMvc.perform(
+                    get("/game/x/shot")
+                            .contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(status().is2xxSuccessful());
+        }
 
 }

@@ -2,7 +2,7 @@
 <template>
     <table class="board" >
       <thead>
-        <tr><th :colspan="size+1" class="header" :class="team">{{team.toUpperCase()}} team <span v-if="url">({{url}})</span> <span v-if="id" >, game: {{id}}</span> </th></tr>
+        <tr><th :colspan="size+1" class="header" :class="team">{{ description}} , {{team.toUpperCase()}} team <span v-if="url">({{url}})</span> <span v-if="id" >, game: {{id}}</span> </th></tr>
       </thead>
       <tbody>
       <tr>
@@ -39,7 +39,8 @@ export default {
     team: String,
     id: String,
     url: String,
-    positions: Array
+    positions: Array,
+    description: String
   },
   methods : {
      
