@@ -27,20 +27,20 @@ The application is now runnable using `java -jar target/javaquarkusship*.jar`.
 
 `docker build -f Dockerfile -t pl.battleships/java-quarkus-ship .`
 
-`docker run -i --rm -p 8050:8050 pl.battleships/java-quarkus-ship`
+`docker run -i --rm -p 8051:8051 pl.battleships/java-quarkus-ship`
 
 ### Build native and run via docker
 
 `docker build -f Dockerfile.native -t pl.battleships/java-quarkus-ship-native .`
 
-`docker run -i --rm -p 8050:8050 pl.battleships/java-quarkus-ship-native`
+`docker run -i --rm -p 8051:8051 pl.battleships/java-quarkus-ship-native`
 
 ## Comparison in start time
 
 Please notice application start time on below logs. Native solution takes 0.026s to start. Wow.
 
 ```
-docker run --rm -p 8050:8050 pl.battleships/java-quarkus-ship
+docker run --rm -p 8051:8051 pl.battleships/java-quarkus-ship
 Listening for transport dt_socket at address: 5085
 __  ____  __  _____   ___  __ ____  ______ 
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
@@ -52,7 +52,7 @@ __  ____  __  _____   ___  __ ____  ______
 ```
 
 ```
-docker run --rm -p 8050:8050 pl.battleships/java-quarkus-ship-native
+docker run --rm -p 8051:8051 pl.battleships/java-quarkus-ship-native
 __  ____  __  _____   ___  __ ____  ______ 
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
