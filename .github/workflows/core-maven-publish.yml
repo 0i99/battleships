@@ -4,8 +4,9 @@
 name: core publish
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'core.v*'
 
 jobs:
   build:
