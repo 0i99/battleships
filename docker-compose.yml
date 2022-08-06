@@ -14,7 +14,7 @@ services:
   blueteam:
     image: pl.battleships/java-spring-ship
     build: javaSpringShip/
-    container_name: blueteam
+    container_name: javaspringship
     ports:
       - 8050:8050
       - 8150:8150
@@ -26,16 +26,18 @@ services:
      
 
   redteam:
-    image: pl.battleships/java-spring-ship
-    build: javaSpringShip/
-    container_name: redteam
+    image: pl.battleships/java-quarkus-ship
+    build: 
+      context: javaQuarkusShip
+      dockerfile: Dockerfile.native
+    container_name: javaquarkusship
     ports:
       - 8051:8051
       - 8151:8151
     environment:
-      SERVER_PORT: 8051
+      QUARKUS_HTTP_PORT: 8051
       GEAM_TEAM: red
-      GAME_OPPONENTURL: http://blueteam:8050
+      QUARKUS_REST_CLIENT_GAME_URL: http://blueteam:8050
       GAME_SLEEP: 50
 
 

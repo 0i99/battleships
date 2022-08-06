@@ -12,10 +12,10 @@
    
   <div class="row">
     <div class="col">
-      <GameBoard :size="size" :team='"blue"' :id="gameId" :url="blueTeamUrl" :positions="bluePositions"/>
+      <GameBoard :size="size" :team='"blue"' :id="gameId" :url="blueTeamUrl" :positions="bluePositions" :description="blueInfo"/>
     </div>
     <div class="col">
-      <GameBoard :size="size" :team='"red"' :id="gameId" :url="redTeamUrl" :positions="redPositions"/>
+      <GameBoard :size="size" :team='"red"' :id="gameId" :url="redTeamUrl" :positions="redPositions" :description="redInfo"/>
     </div>
   </div>
 </template>
@@ -38,6 +38,8 @@ export default {
       redTeamUrl: process.env.VUE_APP_RED_TEAM_URL,
       bluePositions: [],
       redPositions: [],
+      blueInfo: "",
+      redInfo: "",
       errorMessage: "",
       running : false
     }
@@ -45,16 +47,38 @@ export default {
   mounted() {
     this.bluePositions=this.emptyGameBoard();
     this.redPositions=this.emptyGameBoard();
+
+    this.getAppInfo();
   },
 
   methods: {
     /**
      * Create empty board with size specified in env
      */
-     emptyGameBoard(){
+    emptyGameBoard(){
       return new Array(this.size).fill(0).map(() => new Array(this.size).fill(0))
     },
 
+    /**
+     * Get application information
+     */
+    async getAppInfo(){
+      fetch(this.blueTeamUrl + "/information")
+            .then(async response => {
+              const data = await response.json();
+              this.blueInfo = data.name + "(" + data.details + ")";
+          }).catch(error => {
+            this.errorMessage = "There was an error while getting application information for blue team("+this.blueTeamUrl+")" + error;
+          });
+
+      fetch(this.redTeamUrl + "/information")
+            .then(async response => {
+              const data = await response.json();
+              this.redInfo = data.name + "(" + data.details + ")";
+          }).catch(error => {
+            this.errorMessage = "There was an error while getting application information for blue team("+this.redTeamUrl+")" + error;
+          });    
+    },
 
     /**
      * 

@@ -23,7 +23,8 @@ Plese click [here](doc/c4.md) to see C4 model .
 ## Current stacks
 
 - [coordinator/vueCoordinator](coordinator/vueCoordinator) - simple GUI, application written in Vue 3+, Bootstrap
-- [javaSpringShip](javaSpringShip) - application written in Java 11 + Spring boot 2.7
+- [javaSpringShip](javaSpringShip) - application written in Java 11 + Spring boot 2.7 ![](https://spring.io/images/favicon-9d25009f65637a49ac8d91eb1cf7b75e.ico)
+- [javaQuarkusShip](javaQuarkusShip) - application writen in Java 11 + Quarkus 2.11 ![](https://quarkus.io//favicon.ico)
 - [core](core) - core , simplyfy creating specific stack app (see above)
 
 # Run
