@@ -2,9 +2,10 @@ FROM maven:3.8.6-jdk-11 as build-stage
 
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
-COPY conf/settings.xml /usr/src/app
+COPY conf /usr/src/app/conf
 
-RUN mvn -s /usr/src/app/settings.xml -f /usr/src/app/pom.xml clean package
+RUN base64 -d /usr/src/app/conf/settings.xml.base64 > /usr/src/app/settings.xml && \
+    mvn -s /usr/src/app/settings.xml -f /usr/src/app/pom.xml clean package
 
 
 

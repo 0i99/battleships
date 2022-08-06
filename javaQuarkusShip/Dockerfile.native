@@ -2,9 +2,10 @@ FROM quay.io/quarkus/ubi-quarkus-native-image:22.1-java11 AS build-stage
 COPY --chown=quarkus:quarkus mvnw /code/mvnw
 COPY --chown=quarkus:quarkus .mvn /code/.mvn
 COPY --chown=quarkus:quarkus pom.xml /code/
-COPY conf/settings.xml /code/
+COPY conf /code/conf
 USER quarkus
 WORKDIR /code
+RUN base64 -d /code/conf/settings.xml.base64 > /code/settings.xml
 RUN ./mvnw -s /code/settings.xml -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 COPY src /code/src
 RUN ./mvnw -s /code/settings.xml package -Pnative -Dquarkus.native.additional-build-args=--initialize-at-run-time=pl.battleships.core.api.BattleshipGameImpl

@@ -4,9 +4,12 @@ COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
 COPY assembly /usr/src/app/assembly
 COPY conf /usr/src/app/conf
-COPY conf/settings.xml /usr/src/app
 
-RUN mvn -s /usr/src/app/settings.xml -f /usr/src/app/pom.xml clean package
+#RUN apt-get update && apt-get install -y \
+#    base64
+
+RUN base64 -d /usr/src/app/conf/settings.xml.base64 > /usr/src/app/conf/settings.xml && \
+    mvn -s /usr/src/app/conf/settings.xml -f /usr/src/app/pom.xml clean package
 
 
 # -----------------------------
