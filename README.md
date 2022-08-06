@@ -37,6 +37,11 @@ Please type:
 docker-compose up
 ```
 
+or to build from sources
+
+```
+docker-compose -f docker-compose-with-build.yml up --build
+```
 
 Next go to [coordinator page at localhost:8080](http://localhost:8080) and click run
 
