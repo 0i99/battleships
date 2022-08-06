@@ -3,15 +3,17 @@ version: '3.2'
 services:
   coordinator:
     container_name: coordinator
-    image: 0i99/pl.battleships.vue-coordinator
+    image: "pl.battleships/vue-coordinator"
     depends_on:
       - redteam
       - blueteam
+    build: coordinator/vueCoordinator
     ports:
       - 8080:80
 
   blueteam:
-    image: 0i99/pl.battleships.java-spring-ship
+    image: pl.battleships/java-spring-ship
+    build: javaSpringShip/
     container_name: javaspringship
     ports:
       - 8050:8050
@@ -24,7 +26,10 @@ services:
      
 
   redteam:
-    image: 0i99/pl.battleships.java-quarkus-ship
+    image: pl.battleships/java-quarkus-ship
+    build: 
+      context: javaQuarkusShip
+      dockerfile: Dockerfile.native
     container_name: javaquarkusship
     ports:
       - 8051:8051
