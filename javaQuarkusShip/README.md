@@ -13,14 +13,14 @@ You can run your application in dev mode that enables live coding using:
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8050/q/dev/.
 
-## Packaging and running the application
+    ## Packaging and running the application
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
+    The application can be packaged using:
+    ```shell script
+    ./mvnw package
+    ```
 
-The application is now runnable using `java -jar target/javaquarkusship*.jar`.
+    The application is now runnable using `java -jar target/javaquarkusship*.jar`.
 
 
 ## Build and run via docker
