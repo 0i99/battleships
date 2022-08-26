@@ -87,6 +87,5 @@ class GameServiceTest {
         Mockito.when(battleshipGame.opponentShot(Mockito.any(), Mockito.any())).thenReturn(ShotResult.HIT);
         ShotStatusDto shot = gameService.opponentShot("x", new PositionDto().x(1).y(1));
         Assertions.assertEquals(ShotStatusDto.HIT, shot);
-
     }
 }

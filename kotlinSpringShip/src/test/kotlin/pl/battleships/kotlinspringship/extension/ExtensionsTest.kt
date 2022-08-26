@@ -3,8 +3,12 @@ package pl.battleships.kotlinspringship.extension
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import pl.battleships.api.dto.GameStatusDto
 import pl.battleships.api.dto.PositionDto
+import pl.battleships.api.dto.ShotStatusDto
+import pl.battleships.core.model.GameStatus
 import pl.battleships.core.model.Position
+import pl.battleships.core.model.ShotResult
 
 class ExtensionsTest {
 
@@ -22,6 +26,25 @@ class ExtensionsTest {
         Assertions.assertEquals(3,positionDto1.x)
         Assertions.assertEquals(4,positionDto1.y)
         Assertions.assertTrue(positionDto1.hit == true)
+    }
 
+    @DisplayName("check mappings for shots")
+    @Test
+    fun checkShotExtension(){
+        val dto = ShotStatusDto.dESTROYED
+        val shot = dto.toShotResult()
+        Assertions.assertEquals(ShotResult.DESTROYED,shot)
+
+        val shot1 = ShotStatusDto.aLLDESTROYED
+        val dto1 = shot1.toShotResult()
+        Assertions.assertEquals(ShotResult.ALL_DESTROYED,dto1)
+    }
+
+    @DisplayName("check mappings for games")
+    @Test
+    fun checkGameExtenstion(){
+        val game = GameStatus.OVER
+        val dto = game.toGameStatusDto()
+        Assertions.assertEquals(GameStatusDto.oVER,dto)
     }
 }
