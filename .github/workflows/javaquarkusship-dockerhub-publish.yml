@@ -1,8 +1,9 @@
 name: publish docker image for java quarkus ship project
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'docker.v*'
 
 jobs:
   push_to_registry:
