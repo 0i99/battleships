@@ -25,12 +25,6 @@ class OneGameHistoryProvider implements HistoryProvider {
     }
 
     @Override
-    Long shotForGame(String gameId, Position position) {
-        shots.get(gameId).add(position)
-        return 0L
-    }
-
-    @Override
     List<Position> getAllShots(String gameId) {
         return Optional.ofNullable(opponentShots.get(gameId)).orElse(Collections.emptyList())
     }
