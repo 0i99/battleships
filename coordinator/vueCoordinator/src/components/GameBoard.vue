@@ -1,10 +1,23 @@
 
 <template>
+   
     <table class="board" >
       <thead>
-        <tr><th :colspan="size+1" class="header" :class="team">{{ description}} , {{team.toUpperCase()}} team <span v-if="url">({{url}})</span> <span v-if="id" >, game: {{id}}</span> </th></tr>
+        <tr>
+          <th :colspan="size+1" class="header" >
+              <span v-for="it in stack" :key="it">
+                <img v-bind:src="require(`../assets/${it}.png`)" class="rounded h-25 w-25"/>
+              </span>
+              <img v-if="winner" v-bind:src="require(`../assets/winner.png`)" class="rounded h-25 w-25 trophy" />
+              
+          </th>
+        </tr>
       </thead>
-      <tbody>
+      <tbody class="winner">
+      <tr>
+        <td></td>
+        <td :colspan="size"><span v-if="url">url: {{url}}</span> <span v-if="id" >game: {{id}}</span></td>
+      </tr>
       <tr>
         <td></td>
         <td v-for="(rowa, idxa1) in positions" :key="rowa" >{{idxa1}}</td>
@@ -16,19 +29,14 @@
          <span v-bind:class="'position'+positions[idx1][idx2]">x</span>
         </td>
       </tr>
-  
 
-      <!-- <tr v-for="row in (1,size)" :key="row">
-        <td>{{row}}</td>
-        <td v-for="col in (1,size)" :key="col" >
-          
-        </td>
-      </tr> -->
       </tbody>
     </table>
 </template>
 
 <script>
+
+
 export default {
   name: 'GameBoard',
   props: {
@@ -36,22 +44,29 @@ export default {
       type: Number,
       default: 10
       },
-    team: String,
     id: String,
     url: String,
     positions: Array,
-    description: String
+    stack: Array,
+    winner: {
+      type: Boolean,
+      default: false
+      }
   },
   methods : {
      
   }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .board{
   font-size: x-small;
+}
+.winner{
+  
 }
 .board td{
   border: 1px solid #eee;
@@ -63,15 +78,11 @@ export default {
   text-align: center;
 }
 .header{
-  color: #fff;
+  color: #333;
   padding: 5px;
+  font-size: small;
 }
-.red {
-  background: #d8031c;
-}
-.blue {
-  background: #9fcbee;
-}
+
 .position0{
   display: none;
 }
@@ -86,5 +97,8 @@ export default {
   display: inline-block;
   width: 100%;
   height: 100%;
+}
+.trophy{
+  margin-left: 10px;
 }
 </style>

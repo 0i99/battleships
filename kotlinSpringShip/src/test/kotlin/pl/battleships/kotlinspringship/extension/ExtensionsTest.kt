@@ -31,11 +31,11 @@ class ExtensionsTest {
     @DisplayName("check mappings for shots")
     @Test
     fun checkShotExtension(){
-        val dto = ShotStatusDto.dESTROYED
+        val dto = ShotStatusDto.DESTROYED
         val shot = dto.toShotResult()
         Assertions.assertEquals(ShotResult.DESTROYED,shot)
 
-        val shot1 = ShotStatusDto.aLLDESTROYED
+        val shot1 = ShotStatusDto.ALL_DESTROYED
         val dto1 = shot1.toShotResult()
         Assertions.assertEquals(ShotResult.ALL_DESTROYED,dto1)
     }
@@ -45,6 +45,6 @@ class ExtensionsTest {
     fun checkGameExtenstion(){
         val game = GameStatus.OVER
         val dto = game.toGameStatusDto()
-        Assertions.assertEquals(GameStatusDto.oVER,dto)
+        Assertions.assertEquals(GameStatusDto.OVER,dto)
     }
 }

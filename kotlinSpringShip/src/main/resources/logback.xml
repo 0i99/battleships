@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration scan="true" scanPeriod="2 minute">
     <property name="PATTERN" value="%red(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable" />
     <property name="LOGS_PATH" value="./logs" />
 
@@ -25,9 +25,7 @@
 
     <logger name="pl.battleships.javaspringship" level="DEBUG" />
 
-<!--    <logger name="org.springframework.test" level="INFO" additivity="false"/>-->
-
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="file" />
         <appender-ref ref="console" />
     </root>

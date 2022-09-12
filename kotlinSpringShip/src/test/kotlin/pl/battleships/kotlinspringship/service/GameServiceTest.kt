@@ -10,12 +10,13 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.whenever
 import pl.battleships.api.dto.GameDto
+import pl.battleships.api.dto.GameStatusDto
+import pl.battleships.api.dto.PositionDto
+import pl.battleships.api.dto.ShotStatusDto
 import pl.battleships.core.api.BattleshipGame
 import pl.battleships.core.api.HistoryProvider
 import pl.battleships.core.exception.DuplicatedGameException
-import pl.battleships.core.model.Board
-import pl.battleships.core.model.Position
-import pl.battleships.core.model.Ship
+import pl.battleships.core.model.*
 import java.util.List
 import kotlin.system.measureTimeMillis
 
@@ -77,5 +78,21 @@ class GameServiceTest {
         }
 
         Assertions.assertEquals("x",gameIdCaptor.lastValue)
+    }
+
+    @Test
+    fun `check game status`(){
+        whenever(battleshipGame.getGameStatus(any())).thenReturn(GameStatus.RUNNING)
+
+        val gameStatus = gameServiceImpl.getGameStatus("x")
+        Assertions.assertEquals(GameStatusDto.RUNNING,gameStatus)
+    }
+
+    @Test
+    fun `check opponent shot`(){
+        whenever(battleshipGame.opponentShot(any(), any())).thenReturn(ShotResult.HIT)
+
+        val result = gameServiceImpl.opponentShot("x", PositionDto(1, 2))
+        Assertions.assertEquals(ShotStatusDto.HIT,result)
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AutoImportedSourceRoots">
+    <option name="directories">
+      <list>
+        <option value="$MODULE_DIR$/kotlinSpringShip/src/main/java" />
+        <option value="$MODULE_DIR$/kotlinSpringShip/src/main/kotlin" />
+        <option value="$MODULE_DIR$/kotlinSpringShip/src/test/java" />
+        <option value="$MODULE_DIR$/kotlinSpringShip/src/test/kotlin" />
+        <option value="$MODULE_DIR$/kotlinSpringShip/target/generated-sources/src/main/kotlin" />
+      </list>
+    </option>
+  </component>
+</module>

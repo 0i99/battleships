@@ -1,5 +1,5 @@
 <template>
-<div class="container">
+<div class="container" style="max-width: 1000px">
 
   <ul class="nav nav-tabs">
     <li class="nav-item">
@@ -15,5 +15,6 @@
 </div>
  
 </template>
+
 
 

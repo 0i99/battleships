@@ -10,7 +10,7 @@ import pl.battleships.api.dto.GameDto
 import pl.battleships.api.dto.GameStatusDto
 import pl.battleships.api.dto.PositionDto
 import pl.battleships.api.dto.ShotStatusDto
-import pl.battleships.core.exception.GameOverException
+import pl.battleships.core.exception.*
 import pl.battleships.kotlinspringship.service.GameService
 
 @RestController
@@ -34,8 +34,27 @@ class GameController(private val gameService: GameService) : GameApi {
     }
 
     @ExceptionHandler(GameOverException::class)
-    protected fun gameOver(): ResponseEntity<Void?>? {
+    fun gameOverExceptionHandler(): ResponseEntity<Void?>? {
         return ResponseEntity.status(HttpStatus.GONE).build()
     }
 
+    @ExceptionHandler(NoGameFoundException::class)
+    fun noGameFoundExceptionHandler(): ResponseEntity<Void?>? {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+    }
+
+    @ExceptionHandler(DuplicatedGameException::class)
+    fun duplicatedGameExceptionHandler(): ResponseEntity<Void?>? {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build()
+    }
+
+    @ExceptionHandler(InvalidParamException::class)
+    fun invalidParamsExceptionHandler(): ResponseEntity<Void?>? {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build()
+    }
+
+    @ExceptionHandler(InvalidMoveException::class)
+    fun invalidMoveExceptionHandler(): ResponseEntity<Void?>? {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+    }
 }

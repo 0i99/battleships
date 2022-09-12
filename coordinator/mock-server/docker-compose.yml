@@ -1,0 +1,56 @@
+version: "2.4"
+services:
+  player1:
+    image: mockserver/mockserver:5.14.0
+    container_name: battleships-mock-player1
+    volumes:
+      - type: bind
+        source: .
+        target: /config
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/java-spring.json
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+    ports:
+      - 8051:1080
+
+
+  player2:
+    image: mockserver/mockserver:5.14.0
+    container_name: battleships-mock-player2
+    volumes:
+      - type: bind
+        source: .
+        target: /config
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/java-quarkus.json    
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+    ports:
+      - 8052:1080      
+
+
+  player3:
+    image: mockserver/mockserver:5.14.0
+    container_name: battleships-mock-player3
+    volumes:
+      - type: bind
+        source: .
+        target: /config
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/kotlin-spring.json  
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties  
+    ports:
+      - 8053:1080     
+
+
+  player4:
+    image: mockserver/mockserver:5.14.0
+    container_name: battleships-mock-player4
+    volumes:
+      - type: bind
+        source: .
+        target: /config
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/java-spring.json   
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties 
+    ports:
+      - 8054:1080         

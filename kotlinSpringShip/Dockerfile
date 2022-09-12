@@ -22,5 +22,4 @@ RUN cd /usr/src/kotlinspringship && \
 
 CMD java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5085 \
  -Xms256m -Xmx1024m \
- -Dlogging.config=config/logback.xml \
  -jar kotlinspringship*.jar
