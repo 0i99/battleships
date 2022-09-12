@@ -18,5 +18,4 @@ pl/battleships/core/api/BattleshipGameImpl.class
 pl/battleships/core/model/Board.class
 pl/battleships/core/api/HistoryProvider.class
 pl/battleships/core/model/GameStatus.class
-pl/battleships/core/util/RandomUtil.class
 pl/battleships/core/model/Position$PositionBuilder.class

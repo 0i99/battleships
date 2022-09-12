@@ -2,37 +2,53 @@ version: '3.2'
 
 services:
   coordinator:
-    container_name: coordinator
     image: 0i99/pl.battleships.vue-coordinator
+    container_name: battleships-coordinator
     depends_on:
-      - redteam
-      - blueteam
+      - player1
+      - player2
+      - player3
+      - player4
     ports:
       - 8080:80
 
-  blueteam:
+  player1:
     image: 0i99/pl.battleships.java-spring-ship
-    container_name: javaspringship
+    container_name: battleships-player1
     ports:
-      - 8050:8050
-      - 8150:8150
+      - 8051:8050
     environment:
       SERVER_PORT: 8050
-      GEAM_TEAM: blue
-      GAME_OPPONENTURL: http://redteam:8051
-      GAME_SLEEP: 50
-     
-
-  redteam:
-    image: 0i99/pl.battleships.java-quarkus-ship
-    container_name: javaquarkusship
+      GAME_OPPONENTURL: http://player2:8050
+      GAME_SLEEP: 200
+    
+  player2:
+    image: 0i99/pl.battleships.kotlin-spring-ship
+    container_name: battleships-player2
     ports:
-      - 8051:8051
-      - 8151:8151
+      - 8052:8050
     environment:
-      QUARKUS_HTTP_PORT: 8051
-      GEAM_TEAM: red
-      QUARKUS_REST_CLIENT_GAME_URL: http://blueteam:8050
-      GAME_SLEEP: 50
+      SERVER_PORT: 8050
+      GAME_OPPONENTURL: http://player1:8050
+      GAME_SLEEP: 200
 
+  player3:
+    image: 0i99/pl.battleships.java-quarkus-ship
+    container_name: battleships-player3
+    ports:
+      - 8053:8050
+    environment:
+      QUARKUS_HTTP_PORT: 8050
+      QUARKUS_REST_CLIENT_GAME_URL: http://player4:8050
+      GAME_SLEEP: 200
+
+  player4:
+    image: 0i99/pl.battleships.java-spring-ship
+    container_name: battleships-player4
+    ports:
+      - 8054:8050
+    environment:
+      SERVER_PORT: 8050
+      GAME_OPPONENTURL: http://player3:8050
+      GAME_SLEEP: 200
 

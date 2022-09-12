@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import pl.battleships.api.dto.GameDto;
 import pl.battleships.api.dto.PositionDto;
 import pl.battleships.api.dto.ShotStatusDto;
@@ -114,7 +115,7 @@ class GameControllerTest {
             mockMvc.perform(
                     get("/game/x/shot")
                             .contentType(MediaType.APPLICATION_JSON)
-            ).andExpect(status().is2xxSuccessful());
+            ).andExpect(status().is2xxSuccessful()).andReturn();
         }
 
 }

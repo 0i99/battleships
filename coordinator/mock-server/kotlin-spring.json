@@ -1,0 +1,60 @@
+[
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/information"
+      },
+      "httpResponse": {
+        "body": "{\"name\":\"kotlinSpring\",\"details\":[\"kotlin\",\"spring\"]}"
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/game"
+      },
+      "httpResponse": {
+        "statusCode" : 200
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/game/{gameId}",
+        "pathParameters": {
+          "gameId": ["[A-Z0-9a-z]+"]
+        }
+      },
+      "httpResponse": {
+        "body": "\"RUNNING\""
+      },
+      "times" : {
+        "remainingTimes" : 4,
+        "unlimited" : false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/game/{gameId}",
+        "pathParameters": {
+          "gameId": ["[A-Z0-9a-z]+"]
+        }
+      },
+      "httpResponse": {
+        "body": "\"OVER\""
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/game/{gameId}/shot",
+        "pathParameters": {
+          "gameId": ["[A-Z0-9a-z]+"]
+        }
+      },
+      "httpResponse": {
+        "body": "[{\"x\":3,\"y\":3,\"hit\":false},{\"x\":4,\"y\":4,\"hit\":true}]"
+      }
+    }
+  ]

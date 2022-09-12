@@ -4,20 +4,19 @@
       <b-col sm="2">
          <b-button variant="outline-success" href="#" @click="startGame()" :disabled="running == true">START</b-button> 
       </b-col>
-     
     </b-row>
   </b-container>
   <br/>
   <b-alert show variant="danger" v-if="errorMessage">{{errorMessage}}</b-alert>
-   
-  <div class="row">
-    <div class="col">
-      <GameBoard :size="size" :team='"blue"' :id="gameId" :url="blueTeamUrl" :positions="bluePositions" :description="blueInfo"/>
+
+  <div v-for="(it, idx1) in playersUrl.split(',')" :key="it" class="boards">
+   <div class="board" v-bind:id=idx1>
+      <GameBoard :size="size" :id="gameId" :url="it" :positions="playersPositionMap.get(it)" :stack="playersInfoMap.get(it)" :winner="winners.includes(it)"/>
     </div>
-    <div class="col">
-      <GameBoard :size="size" :team='"red"' :id="gameId" :url="redTeamUrl" :positions="redPositions" :description="redInfo"/>
-    </div>
-  </div>
+    <div class="vs" v-if="(idx1)%2==0">VS</div>   
+    <br v-if="(idx1)%2==1" style="clear:both" />   
+  </div> 
+
 </template>
 
 <script>
@@ -30,28 +29,54 @@ export default {
     GameBoard
   },
   data() {
+  
     return {
-      data: "",
       gameId: "",
       size: parseInt(process.env.VUE_APP_SIZE),
-      blueTeamUrl: process.env.VUE_APP_BLUE_TEAM_URL,
-      redTeamUrl: process.env.VUE_APP_RED_TEAM_URL,
-      bluePositions: [],
-      redPositions: [],
-      blueInfo: "",
-      redInfo: "",
+      playersUrl: process.env.VUE_APP_PLAYERS_URL,
+      sleep: process.env.VUE_APP_SLEEP,
+      playersInfoMap : new Map() ,
+      playersPositionMap : new Map() ,
+      opponents : new Map(),
+      winners: [],
       errorMessage: "",
       running : false
     }
   },
   mounted() {
-    this.bluePositions=this.emptyGameBoard();
-    this.redPositions=this.emptyGameBoard();
-
-    this.getAppInfo();
+    this.loadPositions();
+    this.loadPlayers();
   },
 
   methods: {
+    loadPositions(){
+      this.playersUrl.split(",").map(x=> { 
+        this.playersPositionMap.set(x, this.emptyGameBoard());
+      });
+    },
+    loadPlayers(){
+        var players = this.playersUrl.split(",");
+
+        players.map(x=> {
+          console.log("Loading player " + x);
+          fetch(x + "/information")
+          .then(async response => {
+            const data = await response.json();
+            this.playersInfoMap.set(x, data.details);
+          });
+        });
+
+        //oponents pairs
+        this.opponents = new Map();
+        let n = 0;
+        while (n++ < players.length) {
+          const left = players.pop();
+          const right = players.pop();
+          this.opponents.set(left, right);
+          this.opponents.set(right, left);
+        }
+
+    },
     /**
      * Create empty board with size specified in env
      */
@@ -59,82 +84,43 @@ export default {
       return new Array(this.size).fill(0).map(() => new Array(this.size).fill(0))
     },
 
-    /**
-     * Get application information
-     */
-    async getAppInfo(){
-      fetch(this.blueTeamUrl + "/information")
-            .then(async response => {
-              const data = await response.json();
-              this.blueInfo = data.name + "(" + data.details + ")";
-          }).catch(error => {
-            this.errorMessage = "There was an error while getting application information for blue team("+this.blueTeamUrl+")" + error;
-          });
-
-      fetch(this.redTeamUrl + "/information")
-            .then(async response => {
-              const data = await response.json();
-              this.redInfo = data.name + "(" + data.details + ")";
-          }).catch(error => {
-            this.errorMessage = "There was an error while getting application information for blue team("+this.redTeamUrl+")" + error;
-          });    
-    },
 
     /**
      * 
      */
     async startGame() {
+      this.loadPositions();
+      this.loadPlayers()
       this.gameId = Math.ceil(9999999 * Math.random() * 1000000).toString(16);
-  
-      fetch(this.blueTeamUrl + "/game",{
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-          },
-        mode: "cors",
-        body: JSON.stringify({
-          "id": this.gameId,
-          "size": this.size,
-          "firstShotIsYours" : true
-        })
-      })
-        .then(async response => {
-          const data = await response.json();
-          this.errorMessage = "";
-          console.log(data);
-      }).catch(error => {
-        this.errorMessage = "There was an error while starting game for blue team("+this.blueTeamUrl+")" + error;
-      });
 
+      Array.from(this.playersInfoMap).map(([key,value]) => {
+            console.log("Starting game " + key + " for " + value + " team");
+            fetch(key + "/game",{
+              method: "POST",
+              headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
+                },
+              mode: "cors",
+              body: JSON.stringify({
+                "id": this.gameId,
+                "size": this.size,
+                "firstShotIsYours" : true
+              })
+            })
+            .catch(error => {
+            this.errorMessage = "There was an error while starting game for "+value+" team" + error;
+          })
+        }
+      );
 
-      fetch(this.redTeamUrl + "/game",{
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-          },
-        mode: "cors",
-        body: JSON.stringify({
-          "id": this.gameId,
-          "size": this.size,
-          "firstShotIsYours" : false
-        })
-      })
-        .then(async response => {
-          const data = await response.json();
-          this.errorMessage = "";
-          console.log(data);
-      }).catch(error => {
-        this.errorMessage = "There was an error while starting game for red team("+this.redTeamUrl+")" + error;
-      });
 
       this.running = true;
       window.setInterval(() => {
                 this.refresh();
                 this.getGameStatus();
-            },1000);
-    },
+            },this.sleep);
+    },  
 
 
     /**
@@ -142,9 +128,7 @@ export default {
      */
     async refresh() {
       if(this.running){
-        this.bluePositions=this.emptyGameBoard();
-        this.redPositions=this.emptyGameBoard();
-
+        
         const request = {
             method: "GET",
             headers: {
@@ -153,36 +137,22 @@ export default {
             },
             mode: "cors"
         };
-        fetch(this.blueTeamUrl + "/game/"+this.gameId+"/shot",request)
-          .then(async response => {
-            const data = await response.json();
-            data.map(val => {
-              const newRow = this.bluePositions[val.x].slice(0);
-              newRow[val.y] = val.hit ? -1 : 1;
-              this.bluePositions[val.x]=newRow;
-            });
-            this.errorMessage = "";
-        }).catch(error => {
-          this.errorMessage = "There was an error while refreshing game for blue team("+this.blueTeamUrl+")" + error;
-        });
+        Array.from(this.playersInfoMap).map(([key,value]) => {
+            fetch(key + "/game/"+this.gameId+"/shot",request)
+              .then(async response => {
+                const data = await response.json();
+                data.map(val => {
+                  const newRow = this.playersPositionMap.get(key)[val.x].slice(0);
+                  newRow[val.y] = val.hit ? -1 : 1;
+                  this.playersPositionMap.get(key)[val.x]=newRow;
+                });
+                this.errorMessage = "";
+            }).catch(error => {
+              this.errorMessage = "There was an error while getting game status for "+value+" team" + error;
+            })
+        }
+        );
 
-        fetch(this.redTeamUrl + "/game/"+this.gameId+"/shot",request)
-          .then(async response => {
-            // console.log("got " + response.status) 
-            // if(response.status == 410){
-            //   this.errorMessage = "Game is over"
-            //   this.running = false;
-            // }
-            const data = await response.json();
-            data.map(val => {
-              const newRow = this.redPositions[val.x].slice(0);
-              newRow[val.y] = val.hit ? -1 : 1;
-              this.redPositions[val.x]=newRow;
-            });
-            this.errorMessage = "";
-        }).catch(error => {
-          this.errorMessage = "There was an error while refreshing game for red team("+this.redTeamUrl+")" + error;
-        });
       }
     },
 
@@ -200,28 +170,24 @@ export default {
             },
             mode: "cors"
         };
-        fetch(this.blueTeamUrl + "/game/"+this.gameId,request)
-          .then(async response => {
-            const data = await response.json();
-            if(data == "OVER"){
-              this.errorMessage = "Game is over, RED team won"
-              console.log("game over RED team won");
-              this.running = false;
-            }
-        }).catch(error => {
-          this.errorMessage = "There was an error while getting game status for blue team("+this.blueTeamUrl+")" + error;
-        });
-
-        fetch(this.redTeamUrl + "/game/"+this.gameId,request)
-          .then(async response => {
-            const data = await response.json();
-            if(data == "OVER"){
-              this.errorMessage = "Game is over, BLUE team won"
-              console.log("game over BLUE team won");
-              this.running = false;
-            }
-        }).catch(error => {
-          this.errorMessage = "There was an error while getting game status for red team("+this.redTeamUrl+")" + error;
+        Array.from(this.playersInfoMap).map(([key,value]) => {
+            fetch(key + "/game/"+this.gameId,request)
+              .then(async response => {
+                const data = await response.json();
+                if(data == "OVER"){
+                  let winner = this.opponents.get(key);
+                  console.log("Game are over from " + key + ", " + winner + " won");
+                  if(!this.winners.includes(winner)){
+                    this.winners.push(winner); 
+                  }
+                  if(this.winners.length==this.playersInfoMap.size/2){
+                    console.log("All of games are over")
+                    this.running = false;
+                  }
+                }
+            }).catch(error => {
+              this.errorMessage = "There was an error while getting game status for "+value+" team" + error;
+            })
         });
       }
     }
@@ -230,5 +196,17 @@ export default {
 </script>
 
 <style>
-
+.boards div{
+  margin-left: 40px;
+}
+.board{
+  margin-bottom: 30px;
+  float: left;
+}
+.vs{
+  margin-top: 100px;
+  font-size: xx-large;
+  float: left;
+  color: #333;
+}
 </style>

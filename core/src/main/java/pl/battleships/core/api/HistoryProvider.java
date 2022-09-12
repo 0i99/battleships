@@ -26,15 +26,6 @@ public interface HistoryProvider {
     Long opponentShotForGame(String gameId, Position position);
 
     /**
-     * add my shot to history
-     *
-     * @param gameId
-     * @param position
-     * @return
-     */
-    Long shotForGame(String gameId, Position position);
-
-    /**
      * Get all shots for gameId
      *
      * @param gameId
