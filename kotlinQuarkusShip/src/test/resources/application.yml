@@ -1,0 +1,4 @@
+game:
+  timeout: 1100
+  sleep: 200
+  opponent-url: localhost:8060

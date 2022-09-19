@@ -1,0 +1,13 @@
+quarkus:
+  package.type: uber-jar
+
+  # http -----------------------------------------------------------------------------------------------------------------
+  http:
+    port: 8051
+    cors: true
+    test-port: 6051
+
+game:
+  timeout: 1000
+  sleep: 100
+  opponent-url: localhost:8050
