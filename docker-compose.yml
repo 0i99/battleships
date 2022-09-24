@@ -43,12 +43,12 @@ services:
       GAME_SLEEP: 200
 
   player4:
-    image: 0i99/pl.battleships.java-spring-ship
+    image: 0i99/pl.battleships.kotlin-quarkus-ship
     container_name: battleships-player4
     ports:
       - 8054:8050
     environment:
-      SERVER_PORT: 8050
-      GAME_OPPONENTURL: http://player3:8050
+      QUARKUS_HTTP_PORT: 8050
+      QUARKUS_REST_CLIENT_GAME_URL: http://player3:8050
       GAME_SLEEP: 200
 
