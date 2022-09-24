@@ -94,7 +94,8 @@ export default {
       this.gameId = Math.ceil(9999999 * Math.random() * 1000000).toString(16);
 
       Array.from(this.playersInfoMap).map(([key,value]) => {
-            console.log("Starting game " + key + " for " + value + " team");
+            var even = key.split(":").pop()%2 == true;
+            console.log("Starting game " + key + " for " + value + " team, firstShotIsYours " + even);
             fetch(key + "/game",{
               method: "POST",
               headers: {
@@ -105,7 +106,7 @@ export default {
               body: JSON.stringify({
                 "id": this.gameId,
                 "size": this.size,
-                "firstShotIsYours" : true
+                "firstShotIsYours" : even 
               })
             })
             .catch(error => {

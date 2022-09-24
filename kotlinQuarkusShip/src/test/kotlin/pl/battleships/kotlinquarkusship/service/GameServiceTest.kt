@@ -9,10 +9,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pl.battleships.api.dto.GameDto
+import pl.battleships.api.dto.GameStatusDto
+import pl.battleships.api.dto.PositionDto
+import pl.battleships.api.dto.ShotStatusDto
 import pl.battleships.core.api.BattleshipGame
 import pl.battleships.core.api.HistoryProvider
 import pl.battleships.core.exception.DuplicatedGameException
-import pl.battleships.core.model.Position
+import pl.battleships.core.model.*
+import java.util.List
 import javax.inject.Inject
 
 @QuarkusTest
@@ -60,4 +64,39 @@ class GameServiceTest {
         assertEquals("x", slot.captured)
     }
 
+    @Test
+    fun `check positive scenario of joining to the game`() {
+        every { battleshipGame.start(any(), any(), any()) } returns Board.builder().ships(
+            List.of(
+                Ship.builder().type(1).destroyed(true).location(
+                    List.of(Position.builder().x(1).y(1).hit(true).build())
+                ).build(),
+                Ship.builder().type(2).destroyed(false).location(
+                    List.of(Position.builder().x(4).y(4).build())
+                ).build()
+            )
+        ).build()
+
+        gameService.joinTheGame(GameDto("x", 10, true))
+
+        verify {
+            battleshipGame.start(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `check game status`() {
+        every { battleshipGame.getGameStatus(any()) } returns GameStatus.RUNNING
+
+        val gameStatus = gameService.getGameStatus("x")
+        assertEquals(GameStatusDto.RUNNING, gameStatus)
+    }
+
+    @Test
+    fun `check opponent shot`() {
+        every { battleshipGame.opponentShot(any(), any()) } returns ShotResult.HIT
+
+        val result = gameService.opponentShot("x", PositionDto(1, 2))
+        assertEquals(ShotStatusDto.HIT, result)
+    }
 }
