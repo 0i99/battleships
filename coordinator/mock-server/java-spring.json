@@ -39,5 +39,29 @@
       "httpResponse": {
         "body": "[{\"x\":5,\"y\":5,\"hit\":false},{\"x\":6,\"y\":6,\"hit\":true}]"
       }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/game/.*/shot"
+      },
+      "httpResponse": {
+        "statusCode" : 200,
+        "body" : "HIT"
+      },
+      "times" : {
+        "remainingTimes" : 10,
+        "unlimited" : false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/game/.*/shot"
+      },
+      "httpResponse": {
+        "statusCode" : 200,
+        "body" : "MISSED"
+      }
     }
   ]

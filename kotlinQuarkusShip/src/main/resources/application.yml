@@ -1,0 +1,18 @@
+quarkus:
+  package.type: uber-jar
+  log:
+    level: INFO
+    category."pl.battleships".level: DEBUG
+  http:
+    port: 8051
+    cors: true
+    test-port: 6051
+
+  rest-client:
+    game:
+      url: http://127.0.0.1:8052
+game:
+  timeout: 1000
+  sleep: 100
+  opponent-url: localhost:8052
+

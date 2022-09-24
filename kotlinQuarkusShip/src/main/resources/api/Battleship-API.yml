@@ -1,0 +1,181 @@
+openapi: 3.0.1
+info:
+  description: "API for battleship game. See rules and more on [wikipedia](https://en.wikipedia.org/wiki/Battleship_(game))"
+  version: "0.0.1"
+  title: "Battleship API"
+  contact:
+    email: "0i99@pm.me"
+  license:
+    name: "MIT license"
+    url: "https://github.com/0i99/battleships/blob/main/LICENSE"
+paths:
+  /information:
+    get:
+      tags:
+        - "application info, stack"
+      summary: "get application info"
+      operationId: info
+      responses:
+        "200":
+          description: "get application info"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoDto'
+  /game:
+    post:
+      tags:
+        - "game"
+      summary: "join to the game"
+      description: "join to game and schedule to start at `startAt`"
+      operationId: "joinGame"
+      requestBody:
+        description: Game configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameDto'
+        required: true
+      responses:
+        "200":
+          description: "Ok"
+        "409":
+          description: "Conflict"
+  /game/{id}:
+    get:
+      tags:
+        - "game status"
+      summary: "get game status"
+      operationId: getGameStatus
+      parameters:
+        - in: path
+          description: "game id"
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: "get game status"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameStatusDto'
+
+  /game/{id}/shot:
+    post:
+      tags:
+        - "game"
+      summary: "shot"
+      description: "Shot"
+      operationId: "shot"
+      parameters:
+        - in: path
+          description: "game id"
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: Position
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionDto'
+        required: true
+      responses:
+        "200":
+          description: "Ok. Hit."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShotStatusDto'
+
+        "404":
+          description: "Not found. Missed."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShotStatusDto'
+    get:
+      tags:
+        - "game"
+      summary: "get all shots"
+      operationId: getAllShots
+      parameters:
+        - in: path
+          description: "game id"
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: "get all shots"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PositionDto'
+
+components:
+  schemas:
+    InfoDto:
+      type: "object"
+      required:
+        - "name"
+        - "tags"
+      properties:
+        name:
+          type: "string"
+          example : "javaQuarkusShip"
+        details:
+          type: array
+          items:
+            type: string
+
+    GameDto:
+      type: "object"
+      required:
+        - "id"
+        - "size"
+        - "firstShotIsYours"
+      properties:
+        id:
+          type: "string"
+          example: "c59d7c88-97f3-11ec-b909-0242ac120002"
+        size:
+          type: integer
+          default: 10
+          description: "grid size, default 10x10"
+        firstShotIsYours:
+          type: "boolean"
+          default: false
+          description: "is it You who starts the game"
+    PositionDto:
+      type: "object"
+      properties:
+        x:
+          type: integer
+          minimum: 0
+        y:
+          type: integer
+          minimum: 0
+        hit:
+          type: boolean
+          default: false
+    ShotStatusDto:
+      type: "string"
+      enum:
+        - MISSED
+        - HIT
+        - DESTROYED
+        - ALL_DESTROYED
+    GameStatusDto:
+      type: string
+      enum:
+        - RUNNING
+        - OVER
+
+

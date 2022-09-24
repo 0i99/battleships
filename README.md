@@ -1,4 +1,4 @@
-# Battleships [![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main)
+# Battleships [![CircleCI](https://circleci.com/gh/0i99/battleships/tree/main.svg?style=svg)](https://circleci.com/gh/0i99/battleships/tree/main) [![dockerhub](https://img.shields.io/badge/docker-images-blue?logo=docker)](https://hub.docker.com/u/0i99)
 
 ![](doc/img/board.png)
 

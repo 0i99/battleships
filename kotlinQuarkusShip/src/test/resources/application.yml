@@ -1,0 +1,10 @@
+game:
+  timeout: 1100
+  sleep: 200
+  opponent-url: localhost:8060
+
+
+quarkus:
+  rest-client:
+    game:
+      url: http://127.0.0.1:8050
