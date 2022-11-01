@@ -26,11 +26,6 @@ public class SimpleHistoryProvider implements HistoryProvider {
     }
 
     @Override
-    public Long shotForGame(String s, Position position) {
-        return null;
-    }
-
-    @Override
     public List<pl.battleships.core.model.Position> getAllShots(String gameId) {
         return Optional.ofNullable(shots.get(gameId)).orElse(Collections.emptyList());
     }
